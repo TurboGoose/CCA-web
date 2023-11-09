@@ -1,12 +1,18 @@
 from flask import Flask
 from flask import render_template
 from csv_reader import Csv_Reader
+from preprocessing import format_datetime, parse_iso_datetime
 
 app = Flask(__name__)
+
 reader = Csv_Reader("datasets/test.csv")
 reader.read_data()
 data = reader.data
 header = reader.header
+
+# preprocessing
+for row in data:
+    row[1] = format_datetime(parse_iso_datetime(row[1]))
 
 
 @app.route('/')
