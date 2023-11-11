@@ -17,7 +17,7 @@ for row in data:
 
 @app.route('/')
 def show_data():
-    return render_template("table.html", header=header, data=data)
+    return render_template("viewer.html", header=header, data=data)
 
 
 if __name__ == '__main__':
