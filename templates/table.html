@@ -14,22 +14,22 @@
 </head>
 
 <body>
-<div class="container mw-75">
-    <table class="table table-striped">
+<div class="container">
+    <table class="table table-striped table-bordered">
         <thead class="table-dark">
-            <tr>
-                {% for row_name in header %}
-                    <th scope="col">{{ row_name }}</th>
-                {% endfor %}
-            </tr>
+        <tr class="row">
+            <td class="col-2">{{ header[0] }}</td>
+            <td class="col-2">{{ header[1] }}</td>
+            <td class="col-8">{{ header[2] }}</td>
+        </tr>
         </thead>
 
         <tbody>
         {% for row in data %}
-            <tr>
-                {% for col in row %}
-                    <th class="text-wrap">{{ col }}</th>
-                {% endfor %}
+            <tr class="row">
+                <td class="col-2">{{ row[0] }}</td>
+                <td class="col-2">{{ row[1] }}</td>
+                <td class="col-8" style="word-break: break-word">{{ row[2] }}</td>
             </tr>
         {% endfor %}
         </tbody>
