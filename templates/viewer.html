@@ -28,18 +28,18 @@
     <table class="table table-striped table-bordered">
         <thead class="table-dark">
         <tr class="row">
-            <td class="col-2">{{ header[0] }}</td>
-            <td class="col-2">{{ header[1] }}</td>
-            <td class="col-8">{{ header[2] }}</td>
+            <td class="col-2">Username</td>
+            <td class="col-2">Sent</td>
+            <td class="col-8">Text</td>
         </tr>
         </thead>
 
         <tbody>
-        {% for row in data %}
+        {% for msg in data %}
             <tr class="row">
-                <td class="col-2">{{ row[0] }}</td>
-                <td class="col-2">{{ row[1] }}</td>
-                <td class="col-8" style="word-break: break-word">{{ row[2] }}</td>
+                <td class="col-2">{{ msg.username }}</td>
+                <td class="col-2">{{ msg.get_formatted_sent() }}</td>
+                <td class="col-8" style="word-break: break-word">{{ msg.text }}</td>
             </tr>
         {% endfor %}
         </tbody>

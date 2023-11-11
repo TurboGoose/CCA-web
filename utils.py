@@ -1,6 +1,5 @@
 from datetime import datetime
-
-DATETIME_FORMAT = "%m/%d/%Y %H:%M:%S"
+from consts import DATETIME_FORMAT
 
 
 def parse_iso_datetime(str_dt):
