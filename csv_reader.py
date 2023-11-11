@@ -17,3 +17,4 @@ class CsvReader:
                     parse_iso_datetime(row["sent"]),
                     row["text"]
                 ))
+        return self.data
