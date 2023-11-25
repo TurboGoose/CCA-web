@@ -13,10 +13,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.get('/')
 def show_data():
-    path = request.args.get('path')
+    filename = request.args.get('filename')
     data = None
-    if path:
-        data = CsvReader(path).read_data()
+    if filename:
+        file_path = Path(app.config['UPLOAD_FOLDER']) / filename
+        file_path.resolve()
+        data = CsvReader(file_path).read_data()
     return render_template('viewer.html', data=data)
 
 
@@ -36,7 +38,7 @@ def upload_file():
         file_path = Path(app.config['UPLOAD_FOLDER']) / filename
         file_path.resolve()
         file.save(file_path)
-        return redirect(url_for('show_data', path=file_path))
+        return redirect(url_for('show_data', filename=filename))
 
 
 def allowed_file(filename):
