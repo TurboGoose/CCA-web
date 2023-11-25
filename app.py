@@ -1,11 +1,11 @@
 from pathlib import Path
 
-from flask import Flask, request, flash, redirect, url_for
+from flask import Flask, request, redirect, url_for
 from flask import render_template
-from csv_reader import CsvReader
 from werkzeug.utils import secure_filename
-from consts import UPLOAD_FOLDER
 
+from consts import UPLOAD_FOLDER
+from csv_reader import CsvReader
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
