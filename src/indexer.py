@@ -43,9 +43,9 @@ class DatasetIndexer:
 
 if __name__ == '__main__':
     from csv_reader import CsvReader
-    data = CsvReader("datasets/test.csv").read_data()
+    data = CsvReader("../datasets/test.csv").read_data()
 
-    indexer = DatasetIndexer("indices")
+    indexer = DatasetIndexer("../indices")
     # indexer.index("test", data)
 
     query = "Hello there"

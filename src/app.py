@@ -4,11 +4,11 @@ from flask import Flask, request, redirect, url_for
 from flask import render_template
 from werkzeug.utils import secure_filename
 
-from consts import UPLOAD_FOLDER
+from consts import DATASET_FOLDER
 from csv_reader import CsvReader
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = DATASET_FOLDER
 
 
 @app.get('/')
