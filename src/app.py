@@ -10,25 +10,24 @@ from csv_reader import read_csv_dataset
 from indexer import IndexManager
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = DATASET_FOLDER
 
 indexer = IndexManager(INDEX_FOLDER)
 
 @app.get('/')
 def show_data():
-    filename = request.args.get('filename')
+    dataset_name = request.args.get('dataset')
 
-    if not filename:
+    if not dataset_name:
         # flash
         return render_template('viewer.html', data=None)
 
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if not os.path.exists(file_path):
+    dataset_path = os.path.join(DATASET_FOLDER, dataset_name)
+    if not os.path.exists(dataset_path):
         # flash
         return redirect('/')
 
     query = request.args.get('query')
-    data = handle_search(file_path, query) if query else retrieve_data(file_path)
+    data = handle_search(dataset_path, query) if query else retrieve_data(dataset_path)
 
     return render_template('viewer.html', data=data)
 
@@ -54,11 +53,11 @@ def upload_file():
         # flash('No selected file')
         return redirect('/')
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        Thread(target=indexer.index, args=(filename, read_csv_dataset(file_path))).start()
-        return redirect(url_for('show_data', filename=filename))
+        dataset_name = secure_filename(file.filename)
+        dataset_path = os.path.join(DATASET_FOLDER, dataset_name)
+        file.save(dataset_path)
+        Thread(target=indexer.index, args=(dataset_name, read_csv_dataset(dataset_path))).start()
+        return redirect(url_for('show_data', dataset=dataset_name))
 
 
 def allowed_file(filename):
