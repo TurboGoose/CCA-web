@@ -5,7 +5,7 @@ from whoosh.index import create_in, open_dir
 from whoosh.qparser import QueryParser
 
 
-class DatasetIndexer:
+class IndexManager:
     def __init__(self, indices_dir):
         self.indices_dir = indices_dir
         if not os.path.exists(indices_dir):
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     from csv_reader import CsvReader
     data = CsvReader("../datasets/test.csv").read_data()
 
-    indexer = DatasetIndexer("../indices")
+    indexer = IndexManager("../indices")
     # indexer.index("test", data)
 
     query = "Hello there"

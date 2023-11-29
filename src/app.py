@@ -1,23 +1,25 @@
-from pathlib import Path
+import os
 
 from flask import Flask, request, redirect, url_for
 from flask import render_template
 from werkzeug.utils import secure_filename
+from threading import Thread
 
-from consts import DATASET_FOLDER
+from consts import DATASET_FOLDER, INDEX_FOLDER
 from csv_reader import CsvReader
+from indexer import IndexManager
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = DATASET_FOLDER
 
+indexer = IndexManager(INDEX_FOLDER)
 
 @app.get('/')
 def show_data():
     filename = request.args.get('filename')
     data = None
     if filename:
-        file_path = Path(app.config['UPLOAD_FOLDER']) / filename
-        file_path.resolve()
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         data = CsvReader(file_path).read_data()
     return render_template('viewer.html', data=data)
 
@@ -34,10 +36,9 @@ def upload_file():
         return redirect('/')
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-
-        file_path = Path(app.config['UPLOAD_FOLDER']) / filename
-        file_path.resolve()
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
+        Thread(target=indexer.index, args=(filename, CsvReader(file_path).read_data())).start()
         return redirect(url_for('show_data', filename=filename))
 
 

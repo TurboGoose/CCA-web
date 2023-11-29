@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 from utils import parse_iso_datetime, format_datetime
@@ -9,6 +10,8 @@ def _transform_data(df):
 
 class CsvReader:
     def __init__(self, filename):
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File '{filename}' not exists")
         self.filename = filename
         self.data = None
 
