@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 from threading import Thread
 
 from consts import DATASET_FOLDER, INDEX_FOLDER
-from csv_reader import CsvReader
+from csv_reader import read_csv_dataset
 from indexer import IndexManager
 
 app = Flask(__name__)
@@ -34,7 +34,7 @@ def show_data():
 
 
 def retrieve_data(file_path):
-    return CsvReader(file_path).read_data()
+    return read_csv_dataset(file_path)
 
 
 def handle_search(file_path, query):
@@ -57,7 +57,7 @@ def upload_file():
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        Thread(target=indexer.index, args=(filename, CsvReader(file_path).read_data())).start()
+        Thread(target=indexer.index, args=(filename, read_csv_dataset(file_path))).start()
         return redirect(url_for('show_data', filename=filename))
 
 
