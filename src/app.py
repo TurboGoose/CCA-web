@@ -17,11 +17,30 @@ indexer = IndexManager(INDEX_FOLDER)
 @app.get('/')
 def show_data():
     filename = request.args.get('filename')
-    data = None
-    if filename:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        data = CsvReader(file_path).read_data()
+
+    if not filename:
+        # flash
+        return render_template('viewer.html', data=None)
+
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(file_path):
+        # flash
+        return redirect('/')
+
+    query = request.args.get('query')
+    data = handle_search(file_path, query) if query else retrieve_data(file_path)
+
     return render_template('viewer.html', data=data)
+
+
+def retrieve_data(file_path):
+    return CsvReader(file_path).read_data()
+
+
+def handle_search(file_path, query):
+    # searcher = Searcher(dataset_name)
+    # data = searcher.search(query)
+    return retrieve_data(file_path)[:5]
 
 
 @app.post('/upload')
