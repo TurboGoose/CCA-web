@@ -1,6 +1,7 @@
 import os
-from whoosh.index import create_in, open_dir
+
 from whoosh.fields import *
+from whoosh.index import create_in, open_dir
 from whoosh.qparser import QueryParser
 
 
@@ -15,12 +16,12 @@ class DatasetIndexer:
         if not os.path.exists(index_dir):
             os.mkdir(index_dir)
 
-        schema = Schema(id=NUMERIC(stored=True, unique=True, bits=64), username=TEXT, text=TEXT)
+        schema = Schema(id=NUMERIC(stored=True, unique=True, bits=64), text=TEXT)
         index = create_in(index_dir, schema)
         writer = index.writer()
 
         for i, row in dataset.iterrows():
-            writer.add_document(id=i, username=row["username"], text=row["text"])
+            writer.add_document(id=i, text=row["text"])
 
         writer.commit()
 
@@ -28,7 +29,6 @@ class DatasetIndexer:
         index_dir = os.path.join(self.indices_dir, index_name)
         if not os.path.exists(index_dir):
             raise FileNotFoundError(f"Index directory '{index_dir}' does not exist")
-        print(f"Index directory: {index_dir}")
         index = open_dir(index_dir)
 
         matched_docs = []
