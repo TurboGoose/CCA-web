@@ -14,13 +14,14 @@ app = Flask(__name__)
 
 indexer = IndexManager(INDEX_FOLDER)
 
+
 @app.get('/')
 def show_data():
     dataset_name = request.args.get('dataset')
 
     if not dataset_name:
         # flash
-        return render_template('viewer.html', data=None)
+        return render_template('viewer.html', data=None, other_datasets=list_files())
 
     dataset_path = os.path.join(DATASET_FOLDER, dataset_name)
     if not os.path.exists(dataset_path):
@@ -30,7 +31,10 @@ def show_data():
     query = request.args.get('query')
     data = handle_search(dataset_path, query) if query else retrieve_data(dataset_path)
 
-    return render_template('viewer.html', data=data, query=query)
+    current_dataset = dataset_name
+    other_datasets = list_files(exclude=current_dataset)
+    return render_template('viewer.html', data=data, query=query,
+                           current_dataset=current_dataset, other_datasets=other_datasets)
 
 
 def retrieve_data(dataset_path):
@@ -61,6 +65,15 @@ def upload_file():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'csv'
+
+
+def list_files(exclude=None):
+    files = []
+    with os.scandir(DATASET_FOLDER) as it:
+        for entry in it:
+            if entry.name.endswith(".csv") and entry.is_file() and entry.name != exclude:
+                files.append(entry.name)
+    return files
 
 
 if __name__ == '__main__':

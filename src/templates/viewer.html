@@ -17,15 +17,15 @@
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="d-flex">
-            <a href="/" class="navbar-brand me-5">Annotator</a>
+    <div class="container d-flex justify-content-between">
+        <a href="/" class="navbar-brand me-5">Annotator</a>
+        <div class="container col-6">
+            <form id="searchForm" class="d-flex justify-content-center" role="search">
+                <input id="searchInput" class="form-control me-2" type="search" placeholder="Search"
+                        {% if query %} value="{{ query }}" {% endif %}>
+                <button type="submit" class="btn btn-outline-success">Search</button>
+            </form>
         </div>
-        <form id="searchForm" class="d-flex col-4" role="search">
-            <input id="searchInput" class="form-control me-2" type="search" placeholder="Search"
-                    {% if query %} value="{{ query }}" {% endif %}>
-            <button type="submit" class="btn btn-outline-success">Search</button>
-        </form>
     </div>
 </nav>
 
@@ -39,20 +39,41 @@
     });
 </script>
 
-<div class="container d-flex flex-row-reverse">
-    <div>
-        <form>
-            <select>
-
-            </select>
-            <button type="submit">Switch</button>
-        </form>
-
+<div class="container d-flex justify-content-between p-0">
+    <div class="form-floating col-5">
+        <select id="chooseDatasetSelect" class="form-select">
+            <option id="defaultOption" selected disabled value="default">
+                {% if current_dataset %}
+                    {{ current_dataset }}
+                {% else %}
+                    Choose dataset
+                {% endif %}
+            </option>
+            {% for dataset in other_datasets %}
+                <option value="{{ dataset }}">{{ dataset }}</option>
+            {% endfor %}
+        </select>
+        <label for="chooseDatasetSelect">Current dataset</label>
     </div>
-    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">Upload
-        file
-    </button>
+    <div>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+            Upload dataset
+        </button>
+    </div>
 </div>
+
+<script>
+    const datasetSelect = document.getElementById('chooseDatasetSelect');
+    datasetSelect.addEventListener("change", event => {
+        const index = datasetSelect.selectedIndex;
+        if (index !== 0) {
+            console.log(window.location.href)
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('dataset', datasetSelect.options[index].value);
+            window.location.href = newUrl.toString();
+        }
+    });
+</script>
 
 <!-- Upload file modal -->
 <div class="modal fade" id="uploadFileModal" tabindex="-1">
@@ -99,7 +120,7 @@
         {% endfor %}
         </tbody>
     {% else %}
-        <h2 class="text-center">No file selected</h2>
+        <h2 class="text-center">No dataset selected</h2>
     {% endif %}
     </table>
 </div>
