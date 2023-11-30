@@ -18,7 +18,7 @@ class IndexManager:
         if not os.path.exists(index_dir):
             os.mkdir(index_dir)
 
-        schema = Schema(id=NUMERIC(stored=True, unique=True, bits=64), text=TEXT)
+        schema = Schema(id=NUMERIC(stored=True, unique=True, bits=64, sortable=True), text=TEXT)
         index = create_in(index_dir, schema)
         writer = index.writer()
 

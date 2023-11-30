@@ -20,7 +20,7 @@ def search(dataset_path, query):
     hit_messages = []
     with index.searcher() as searcher:
         query = QueryParser("text", index.schema).parse(query)
-        results = searcher.search(query)
+        results = searcher.search(query, limit=None, sortedby="id")
         results.formatter = MarkFormatter()
         for hit in results:
             message = dataset.loc[hit["id"]].copy()
