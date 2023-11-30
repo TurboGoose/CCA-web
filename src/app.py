@@ -59,7 +59,7 @@ def upload_file():
         dataset_name = secure_filename(file.filename)
         dataset_path = os.path.join(DATASET_FOLDER, dataset_name)
         file.save(dataset_path)
-        Thread(target=indexer.index, args=(dataset_name, read_csv_dataset(dataset_path))).start()
+        Thread(target=indexer.index, args=(dataset_path, )).start()
         return redirect(url_for('show_data', dataset=dataset_name))
 
 
