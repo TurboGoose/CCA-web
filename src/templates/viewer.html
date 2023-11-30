@@ -66,9 +66,10 @@
         <tbody>
         {% for index, row in data.iterrows() %}
             <tr class="row">
+                <td class="col-1">{{ index }}</td>
                 <td class="col-2">{{ row["username"] }}</td>
                 <td class="col-2">{{ row["sent"] }}</td>
-                <td class="col-8" style="word-break: break-word">{{ row["text"] }}</td>
+                <td class="col-7" style="word-break: break-word">{{ row["text"]|safe }}</td>
             </tr>
         {% endfor %}
         </tbody>

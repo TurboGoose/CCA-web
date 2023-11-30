@@ -8,6 +8,7 @@ from threading import Thread
 from consts import DATASET_FOLDER, INDEX_FOLDER
 from csv_reader import read_csv_dataset
 from indexer import IndexManager
+from searcher import search
 
 app = Flask(__name__)
 
@@ -32,14 +33,12 @@ def show_data():
     return render_template('viewer.html', data=data)
 
 
-def retrieve_data(file_path):
-    return read_csv_dataset(file_path)
+def retrieve_data(dataset_path):
+    return read_csv_dataset(dataset_path)
 
 
-def handle_search(file_path, query):
-    # searcher = Searcher(dataset_name)
-    # data = searcher.search(query)
-    return retrieve_data(file_path)[:5]
+def handle_search(dataset_path, query):
+    return search(dataset_path, query)
 
 
 @app.post('/upload')
