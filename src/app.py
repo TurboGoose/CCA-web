@@ -30,7 +30,7 @@ def show_data():
     query = request.args.get('query')
     data = handle_search(dataset_path, query) if query else retrieve_data(dataset_path)
 
-    return render_template('viewer.html', data=data)
+    return render_template('viewer.html', data=data, query=query)
 
 
 def retrieve_data(dataset_path):
