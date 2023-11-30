@@ -63,15 +63,10 @@
 </div>
 
 <script>
-    const datasetSelect = document.getElementById('chooseDatasetSelect');
-    datasetSelect.addEventListener("change", event => {
-        const index = datasetSelect.selectedIndex;
-        if (index !== 0) {
-            console.log(window.location.href)
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('dataset', datasetSelect.options[index].value);
-            window.location.href = newUrl.toString();
-        }
+    document.getElementById('chooseDatasetSelect').addEventListener("change", event => {
+        const newUrl = new URL(window.location.href.split('?')[0]);
+        newUrl.searchParams.set('dataset', event.target.value);
+        window.location.href = newUrl.toString();
     });
 </script>
 
