@@ -35,10 +35,3 @@ class MarkFormatter(highlight.Formatter):
     def format_token(self, text, token, replace=False):
         token_text = highlight.get_text(text, token, replace)
         return f'<mark class="bg-warning">{token_text}</mark>'
-
-
-if __name__ == '__main__':
-    INDEX_FOLDER = "../" + INDEX_FOLDER
-    results = search("../datasets/test.csv", "hello there")
-    for i, row in results[:5].iterrows():
-        print(row["text"])
