@@ -45,11 +45,35 @@
         </select>
         <label for="chooseDatasetSelect">Current dataset</label>
     </div>
-    <div>
-        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
-            Upload dataset
+
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            {% if current_label %}
+                {{ current_label }}
+            {% else %}
+                Choose label
+            {% endif %}
         </button>
+        <ul class="dropdown-menu">
+            {% for label in other_labels %}
+                <li>
+                    <button class="dropdown-item">{{ label }}</button>
+                </li>
+            {% endfor %}
+            {% if other_labels %}
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+            {% endif %}
+            <li>
+                <button class="dropdown-item">Add new label</button>
+            </li>
+        </ul>
     </div>
+
+    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+        Upload dataset
+    </button>
 </div>
 
 <!-- Upload file modal -->

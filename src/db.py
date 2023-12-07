@@ -35,11 +35,21 @@ def save_label_for_dataset(label: str, dataset: str):
     con.close()
 
 
+def get_datasets():
+    con = sqlite3.connect(DATABASE_FILE)
+    cur = con.cursor()
+    cur.execute(f"SELECT name FROM datasets;")
+    result = [ds[0] for ds in cur.fetchall()]
+    con.commit()
+    con.close()
+    return result
+
+
 def get_labels_for_dataset(dataset: str):
     con = sqlite3.connect(DATABASE_FILE)
     cur = con.cursor()
     cur.execute(f"SELECT name FROM labels WHERE dataset_name='{dataset}';")
-    result = [label for label in cur.fetchall()]
+    result = [label[0] for label in cur.fetchall()]
     con.commit()
     con.close()
     return result
