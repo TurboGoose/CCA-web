@@ -51,6 +51,18 @@ def handle_search(dataset_path, query):
     return search(dataset_path, query)
 
 
+@app.post('/label')
+def add_new_label():
+    dataset_name = request.form.get('dataset')
+    if not dataset_name:
+        # flash
+        return redirect(url_for('show_data'))
+    new_label = request.form.get('label')
+    if new_label not in get_label_list_for_dataset(dataset_name):
+        save_label_for_dataset(new_label, dataset_name)
+    # else: flash
+    return redirect(url_for('show_data', dataset=dataset_name))
+
 @app.post('/upload')
 def upload_file():
     if 'file' not in request.files:

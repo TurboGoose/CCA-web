@@ -66,7 +66,7 @@
                 </li>
             {% endif %}
             <li>
-                <button class="dropdown-item">Add new label</button>
+                <button type="button" data-bs-toggle="modal" data-bs-target="#addNewLabelModal" class="dropdown-item">Add new label</button>
             </li>
         </ul>
     </div>
@@ -74,6 +74,28 @@
     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
         Upload dataset
     </button>
+</div>
+
+<!-- Add new label modal -->
+<div class="modal fade" id="addNewLabelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Add new label</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_new_label') }}" method="POST" id="addNewLabelForm">
+                    <input type="hidden" name="dataset" value="{{ current_dataset }}">
+                    <input type="text" name="label" class="form-control" placeholder="Label name" required>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" form="addNewLabelForm">Add</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Upload file modal -->
