@@ -35,12 +35,19 @@ def show_data():
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
 
-    current_label = get_labels_for_dataset(dataset_name)[0]  # TODO: replace to actual chosen label
+    current_label = get_current_label(dataset_name)
     other_labels = get_label_list_for_dataset(current_dataset, current_label=current_label)
 
     return render_template('viewer.html', data=data, query=query,
                            current_label=current_label, other_labels=other_labels,
                            current_dataset=current_dataset, other_datasets=other_datasets)
+
+
+def get_current_label(dataset_name):
+    all_labels = get_labels_for_dataset(dataset_name)
+    if not all_labels:
+        return None
+    return all_labels[0]  # TODO: replace to actual chosen label
 
 
 def retrieve_data(dataset_path):

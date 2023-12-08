@@ -30,50 +30,48 @@
 </nav>
 
 <div class="container d-flex justify-content-between p-0">
-    <div class="form-floating col-5">
-        <select id="chooseDatasetSelect" class="form-select">
-            <option id="defaultOption" selected disabled value="default">
-                {% if current_dataset %}
-                    {{ current_dataset }}
-                {% else %}
-                    Choose dataset
-                {% endif %}
-            </option>
-            {% for dataset in other_datasets %}
-                <option value="{{ dataset }}">{{ dataset }}</option>
-            {% endfor %}
-        </select>
-        <label for="chooseDatasetSelect">Current dataset</label>
-    </div>
-
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            {% if current_label %}
-                {{ current_label }}
-            {% else %}
-                Choose label
-            {% endif %}
+    <div class="d-flex justify-content-start flex-grow-1">
+        <div class="form-floating col-4">
+            <select id="chooseDatasetSelect" class="form-select">
+                <option id="defaultOption" selected disabled value="default">
+                    {% if current_dataset %}
+                        {{ current_dataset }}
+                    {% else %}
+                        Choose dataset
+                    {% endif %}
+                </option>
+                {% for dataset in other_datasets %}
+                    <option value="{{ dataset }}">{{ dataset }}</option>
+                {% endfor %}
+            </select>
+            <label for="chooseDatasetSelect">Current dataset</label>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+            Upload dataset
         </button>
-        <ul class="dropdown-menu">
-            {% for label in other_labels %}
-                <li>
-                    <button class="dropdown-item">{{ label }}</button>
-                </li>
-            {% endfor %}
-            {% if other_labels %}
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-            {% endif %}
-            <li>
-                <button type="button" data-bs-toggle="modal" data-bs-target="#addNewLabelModal" class="dropdown-item">Add new label</button>
-            </li>
-        </ul>
     </div>
 
-    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
-        Upload dataset
-    </button>
+    <div class="d-flex justify-content-end flex-grow-1">
+        <div class="form-floating col-4">
+            <select id="chooseLabelSelect" class="form-select">
+                <option id="defaultOptionLabel" selected disabled value="default">
+                    {% if current_label %}
+                        {{ current_label }}
+                    {% else %}
+                        Choose label
+                    {% endif %}
+                </option>
+                {% for label in other_labels %}
+                    <option value="{{ label }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <label for="chooseLabelSelect">Current label</label>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm ms-2" data-bs-toggle="modal"
+                data-bs-target="#addNewLabelModal">
+            Add new label
+        </button>
+    </div>
 </div>
 
 <!-- Add new label modal -->
