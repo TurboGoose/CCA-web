@@ -1,15 +1,15 @@
 import os
+from threading import Thread
 
 from flask import Flask, request, redirect, url_for
 from flask import render_template
 from werkzeug.utils import secure_filename
-from threading import Thread
-from db import *
 
 from consts import DATASET_FOLDER, INDEX_FOLDER
-from csv_reader import read_csv_dataset
+from db import *
 from indexer import IndexManager
 from searcher import search
+from csv_util import write_csv_dataset, read_csv_dataset, transform_and_write_csv_dataset
 
 app = Flask(__name__)
 
@@ -24,13 +24,13 @@ def show_data():
         # flash
         return render_template('viewer.html', data=None, other_datasets=get_dataset_list())
 
-    dataset_path = os.path.join(DATASET_FOLDER, dataset_name)
+    dataset_path = compose_dataset_path(dataset_name)
     if not os.path.exists(dataset_path):
         # flash
         return redirect('/')
 
     query = request.args.get('query')
-    data = handle_search(dataset_path, query) if query else retrieve_data(dataset_path)
+    data = handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
 
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
@@ -43,21 +43,6 @@ def show_data():
                            current_dataset=current_dataset, other_datasets=other_datasets)
 
 
-def get_current_label(dataset_name):
-    all_labels = get_labels_for_dataset(dataset_name)
-    if not all_labels:
-        return None
-    return all_labels[0]  # TODO: replace to actual chosen label
-
-
-def retrieve_data(dataset_path):
-    return read_csv_dataset(dataset_path)
-
-
-def handle_search(dataset_path, query):
-    return search(dataset_path, query)
-
-
 @app.post('/label')
 def add_new_label():
     dataset_name = request.form.get('dataset')
@@ -66,9 +51,10 @@ def add_new_label():
         return redirect(url_for('show_data'))
     new_label = request.form.get('label')
     if new_label not in get_label_list_for_dataset(dataset_name):
-        save_label_for_dataset(new_label, dataset_name)
+        add_label_for_dataset(new_label, dataset_name)
     # else: flash
     return redirect(url_for('show_data', dataset=dataset_name))
+
 
 @app.post('/upload')
 def upload_file():
@@ -82,11 +68,42 @@ def upload_file():
         return redirect('/')
     if file and allowed_file(file.filename):
         dataset_name = secure_filename(file.filename)
-        save_dataset(dataset_name)
-        dataset_path = os.path.join(DATASET_FOLDER, dataset_name)
+        dataset_path = compose_dataset_path(dataset_name)
+
         file.save(dataset_path)
-        Thread(target=indexer.index, args=(dataset_path, )).start()
+        add_dataset_to_db(dataset_name)
+        transform_and_write_csv_dataset(dataset_path)
+        Thread(target=indexer.index, args=(dataset_path,)).start()
         return redirect(url_for('show_data', dataset=dataset_name))
+
+
+@app.post('/mark')
+def mark_label():
+    mark_data = request.json
+    label = mark_data["label"]
+    ids = mark_data["ids"]
+    dataset_name = mark_data["dataset"]
+    dataset_path = compose_dataset_path(dataset_name)
+
+    dataset = read_csv_dataset(dataset_path)
+    dataset.loc[ids, "label"] = label
+    write_csv_dataset(dataset, dataset_path)
+    return "", 200
+
+
+def compose_dataset_path(dataset_name):
+    return os.path.join(DATASET_FOLDER, dataset_name)
+
+
+def get_current_label(dataset_name):
+    all_labels = get_labels_for_dataset(dataset_name)
+    if not all_labels:
+        return None
+    return all_labels[0]  # TODO: replace to actual chosen label
+
+
+def handle_search(dataset_path, query):
+    return search(dataset_path, query)
 
 
 def allowed_file(filename):

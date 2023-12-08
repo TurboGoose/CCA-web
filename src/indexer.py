@@ -3,7 +3,7 @@ import os
 from whoosh.fields import *
 from whoosh.index import create_in
 
-from csv_reader import read_csv_dataset
+from csv_util import read_csv_dataset
 
 
 class IndexManager:

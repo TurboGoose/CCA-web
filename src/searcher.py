@@ -6,7 +6,7 @@ from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 
 from consts import INDEX_FOLDER
-from csv_reader import read_csv_dataset
+from csv_util import read_csv_dataset
 
 
 def search(dataset_path, query):

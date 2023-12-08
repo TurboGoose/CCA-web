@@ -19,7 +19,7 @@ def create_tables():
     con.close()
 
 
-def save_dataset(dataset: str):
+def add_dataset_to_db(dataset: str):
     con = sqlite3.connect(DATABASE_FILE)
     cur = con.cursor()
     cur.execute(f"INSERT INTO datasets (name) VALUES ('{dataset}');")
@@ -27,7 +27,7 @@ def save_dataset(dataset: str):
     con.close()
 
 
-def save_label_for_dataset(label: str, dataset: str):
+def add_label_for_dataset(label: str, dataset: str):
     con = sqlite3.connect(DATABASE_FILE)
     cur = con.cursor()
     cur.execute(f"INSERT INTO labels (name, dataset_name) VALUES ('{label}', '{dataset}');")

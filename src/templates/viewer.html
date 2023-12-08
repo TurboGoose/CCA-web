@@ -155,6 +155,38 @@
         <h2 class="text-center">No dataset selected</h2>
     {% endif %}
     </table>
+
+    <script defer>
+        function extractId(checkboxId) {
+            const parts = checkboxId.split('-');
+            const id = parts[1];
+            return parseInt(id, 10);
+        }
+
+        document.getElementById('assignLabelButton').addEventListener("click", event => {
+            const checkedBoxes = document.querySelectorAll('input[id^="checkbox-"]:checked');
+            const ids = [];
+            checkedBoxes.forEach(element => {
+                const checkboxId = element.id;
+                const parts = checkboxId.split('-');
+                const id = parts[1];
+                ids.push(parseInt(id, 10));
+            });
+
+            const body = {"label": "{{ current_label }}", "dataset": "{{ current_dataset }}", "ids": ids};
+            const url = new URL(window.location.href.split("?")[0]);
+            url.pathname = "/mark";
+
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+        });
+    </script>
 </div>
 </body>
 </html>
