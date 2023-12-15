@@ -1,4 +1,12 @@
+function getCurrentDataset() {
+    const url = new URL(window.location.href);
+    return url.searchParams.get("dataset");
+}
+
 document.getElementById('searchForm').addEventListener('submit', event => {
+    if (!getCurrentDataset()) {
+        return
+    }
     event.preventDefault();
     const searchQuery = document.getElementById('searchInput').value;
     const newUrl = new URL(window.location.href);

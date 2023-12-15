@@ -1,16 +1,16 @@
 import os
 from threading import Thread
-from pandas import DataFrame
 
 from flask import Flask, request, redirect, url_for
 from flask import render_template
+from pandas import DataFrame
 from werkzeug.utils import secure_filename
 
 from consts import DATASET_FOLDER, INDEX_FOLDER
+from csv_util import write_csv_dataset, read_csv_dataset, transform_and_write_csv_dataset
 from db import *
 from indexer import IndexManager
 from searcher import search
-from csv_util import write_csv_dataset, read_csv_dataset, transform_and_write_csv_dataset
 
 app = Flask(__name__)
 
@@ -36,11 +36,9 @@ def show_data():
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
 
-    current_label = get_current_label(dataset_name)
-    other_labels = get_label_list_for_dataset(current_dataset, current_label=current_label)
+    labels = get_labels_for_dataset(dataset_name)
 
-    return render_template('viewer.html', data=data, query=query,
-                           current_label=current_label, other_labels=other_labels,
+    return render_template('viewer.html', data=data, query=query, labels=labels,
                            current_dataset=current_dataset, other_datasets=other_datasets)
 
 
@@ -51,7 +49,7 @@ def add_new_label():
         # flash
         return redirect(url_for('show_data'))
     new_label = request.form.get('label')
-    if new_label not in get_label_list_for_dataset(dataset_name):
+    if new_label not in get_labels_for_dataset(dataset_name):
         add_label_for_dataset(new_label, dataset_name)
     # else: flash
     return redirect(url_for('show_data', dataset=dataset_name))
@@ -97,26 +95,12 @@ def compose_dataset_path(dataset_name):
     return os.path.join(DATASET_FOLDER, dataset_name)
 
 
-def get_current_label(dataset_name):
-    all_labels = get_labels_for_dataset(dataset_name)
-    if not all_labels:
-        return None
-    return all_labels[0]  # TODO: replace to actual chosen label
-
-
 def handle_search(dataset_path, query):
     return search(dataset_path, query)
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() == 'csv'
-
-
-def get_label_list_for_dataset(dataset, current_label=None):
-    all_labels = get_labels_for_dataset(dataset)
-    if current_label is not None and current_label in all_labels:
-        all_labels.remove(current_label)
-    return all_labels
 
 
 def get_dataset_list(current_dataset=None):
