@@ -52,118 +52,117 @@
         </button>
     </div>
 
-    <div class="d-flex justify-content-center">
-        <button id="assignLabelButton" type="button" class="btn btn-primary btn-sm">
-            Assign label
-        </button>
-    </div>
-
-    <div class="d-flex justify-content-end flex-grow-1">
-        <div class="form-floating col-4">
-            <select id="chooseLabelSelect" class="form-select">
-                {% for label in labels %}
-                    <option value="{{ label }}">{{ label }}</option>
-                {% endfor %}
-            </select>
-            <label for="chooseLabelSelect">Current label</label>
-            {#        TODO: add script for setting chosen label here#}
+    {% if current_dataset %}
+        <div class="d-flex justify-content-center">
+            <button id="assignLabelButton" type="button" class="btn btn-primary btn-sm">
+                Assign label
+            </button>
         </div>
 
-        <script>
-            function getCurrentDataset() {
-                const url = new URL(window.location.href);
-                return url.searchParams.get("dataset");
-            }
+        <div class="d-flex justify-content-end flex-grow-1">
+            <div class="form-floating col-4">
+                <select id="chooseLabelSelect" class="form-select">
+                    {% for label in labels %}
+                        <option value="{{ label }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <label for="chooseLabelSelect">Current label</label>
+            </div>
 
-            const DEFAULT_LABEL_PLACEHOLDER = 'Choose label';
-
-            let currentDataset = getCurrentDataset();
-            let labelSelect = document.getElementById('chooseLabelSelect');
-
-            function setDefaultLabel() {
-                if (labelSelect.options.length === 0) {
-                    console.log()
-                    let placeholderOption = document.createElement('option');
-                    placeholderOption.textContent = DEFAULT_LABEL_PLACEHOLDER;
-                    placeholderOption.value = 'default';
-                    labelSelect.appendChild(placeholderOption);
+            <script>
+                function getCurrentDataset() {
+                    const url = new URL(window.location.href);
+                    return url.searchParams.get("dataset");
                 }
-                const firstOpt = labelSelect.options[0];
-                firstOpt.selected = true;
-                firstOpt.disabled = true;
-                return firstOpt.text;
-            }
 
-            let currentLabel = setDefaultLabel();
+                const DEFAULT_LABEL_PLACEHOLDER = 'Choose label';
+                let labelSelect = document.getElementById('chooseLabelSelect');
 
-            // change label
-            document.getElementById('chooseLabelSelect').addEventListener("change", event => {
-                selectOption('chooseLabelSelect', event.target.value);
-            });
+                function setDefaultLabel() {
+                    if (labelSelect.options.length === 0) {
+                        console.log()
+                        let placeholderOption = document.createElement('option');
+                        placeholderOption.textContent = DEFAULT_LABEL_PLACEHOLDER;
+                        placeholderOption.value = 'default';
+                        labelSelect.appendChild(placeholderOption);
+                    }
+                    const firstOpt = labelSelect.options[0];
+                    firstOpt.selected = true;
+                    firstOpt.disabled = true;
+                    return firstOpt.text;
+                }
 
-            function selectOption(selectId, optionValue) {
-                currentLabel = optionValue;
-                const selectElement = document.getElementById(selectId);
-                const options = selectElement.options;
+                let currentLabel = setDefaultLabel();
 
-                for (let i = 0; i < options.length; i++) {
-                    if (options[i].disabled) {
-                        if (options[i].text === DEFAULT_LABEL_PLACEHOLDER) {
-                            labelSelect.remove(i);
-                        } else {
-                            options[i].disabled = false;
+                // change label
+                document.getElementById('chooseLabelSelect').addEventListener("change", event => {
+                    selectOption('chooseLabelSelect', event.target.value);
+                });
+
+                function selectOption(selectId, optionValue) {
+                    currentLabel = optionValue;
+                    const selectElement = document.getElementById(selectId);
+                    const options = selectElement.options;
+
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].disabled) {
+                            if (options[i].text === DEFAULT_LABEL_PLACEHOLDER) {
+                                labelSelect.remove(i);
+                            } else {
+                                options[i].disabled = false;
+                            }
+                            break;
                         }
-                        break;
+                    }
+
+                    for (let j = 0; j < options.length; j++) {
+                        if (options[j].value === optionValue) {
+                            options[j].disabled = true;
+                            break;
+                        }
                     }
                 }
 
-                for (let j = 0; j < options.length; j++) {
-                    if (options[j].value === optionValue) {
-                        options[j].disabled = true;
-                        break;
+                // assign label
+                document.getElementById('assignLabelButton').addEventListener("click", event => {
+                    if (!getCurrentDataset() || currentLabel === DEFAULT_LABEL_PLACEHOLDER) {
+                        return
                     }
-                }
-            }
+                    const checkedBoxes = document.querySelectorAll('input[id^="checkbox-"]:checked');
+                    const ids = [];
+                    checkedBoxes.forEach(element => {
+                        element.checked = false;
+                        const checkboxId = element.id;
+                        const parts = checkboxId.split('-');
+                        const id = parts[1];
+                        ids.push(parseInt(id, 10));
+                    });
 
-            // assign label
-            document.getElementById('assignLabelButton').addEventListener("click", event => {
-                if (!currentDataset || currentLabel === DEFAULT_LABEL_PLACEHOLDER) {
-                    return
-                }
-                const checkedBoxes = document.querySelectorAll('input[id^="checkbox-"]:checked');
-                const ids = [];
-                checkedBoxes.forEach(element => {
-                    element.checked = false;
-                    const checkboxId = element.id;
-                    const parts = checkboxId.split('-');
-                    const id = parts[1];
-                    ids.push(parseInt(id, 10));
+                    const body = {"label": currentLabel, "dataset": getCurrentDataset(), "ids": ids};
+                    const url = new URL(window.location.href.split("?")[0]);
+                    url.pathname = "/mark";
+
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    ids.forEach(id => {
+                        const label = document.querySelector(`td[id^="label-${id}"]`);
+                        label.innerText = currentLabel;
+                    })
                 });
+            </script>
 
-                const body = {"label": currentLabel, "dataset": currentDataset, "ids": ids};
-                const url = new URL(window.location.href.split("?")[0]);
-                url.pathname = "/mark";
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(body)
-                });
-
-                ids.forEach(id => {
-                    const label = document.querySelector(`td[id^="label-${id}"]`);
-                    label.innerText = currentLabel;
-                })
-            });
-        </script>
-
-        <button type="button" class="btn btn-primary btn-sm ms-2" data-bs-toggle="modal"
-                data-bs-target="#addNewLabelModal">
-            Add new label
-        </button>
-    </div>
+            <button type="button" class="btn btn-primary btn-sm ms-2" data-bs-toggle="modal"
+                    data-bs-target="#addNewLabelModal">
+                Add new label
+            </button>
+        </div>
+    {% endif %}
 </div>
 
 <!-- Add new label modal -->
@@ -228,10 +227,12 @@
         {% for index, row in data.iterrows() %}
             <tr class="row">
                 <td class="col-auto"><input type="checkbox" id="checkbox-{{ index }}"/></td>
-                <td id="label-{{ index }}" class="col-1">{{ row["label"] if row["label"] is not none else "-" }}</td>
-                <td class="col-1">{{ index }}</td>
-                <td class="col-2">{{ row["username"] }}</td>
-                <td class="col-2">{{ row["sent"] }}</td>
+                <td id="label-{{ index }}" class="col-1" style="word-break: break-word">
+                    {{ row["label"] if row["label"] is not none else "-" }}
+                </td>
+                <td class="col-1" style="word-break: break-word">{{ index }}</td>
+                <td class="col-2" style="word-break: break-word">{{ row["username"] }}</td>
+                <td class="col-2" style="word-break: break-word">{{ row["sent"] }}</td>
                 <td class="col" style="word-break: break-word">{{ row["text"]|safe }}</td>
             </tr>
         {% endfor %}
