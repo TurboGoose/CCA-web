@@ -1,5 +1,6 @@
 import os
 from threading import Thread
+from pandas import DataFrame
 
 from flask import Flask, request, redirect, url_for
 from flask import render_template
@@ -80,15 +81,16 @@ def upload_file():
 @app.post('/mark')
 def mark_label():
     mark_data = request.json
-    label = mark_data["label"]
-    ids = mark_data["ids"]
-    dataset_name = mark_data["dataset"]
-    dataset_path = compose_dataset_path(dataset_name)
-
+    dataset_path = compose_dataset_path(mark_data["dataset"])
     dataset = read_csv_dataset(dataset_path)
-    dataset.loc[ids, "label"] = label
+    mark_data["dataset"] = dataset
+    set_label_for_dataset_rows(**mark_data)
     write_csv_dataset(dataset, dataset_path)
     return "", 200
+
+
+def set_label_for_dataset_rows(dataset: DataFrame, ids: list[int], label: str) -> None:
+    dataset.loc[ids, "label"] = label
 
 
 def compose_dataset_path(dataset_name):
