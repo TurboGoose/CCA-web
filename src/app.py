@@ -1,9 +1,10 @@
 import os
+from tempfile import TemporaryDirectory
 from threading import Thread
 
-from flask import Flask, request, redirect, url_for
-from flask import render_template
+from flask import Flask, request, redirect, url_for, send_file, render_template
 from pandas import DataFrame
+from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 from consts import DATASET_FOLDER, INDEX_FOLDER
@@ -87,12 +88,35 @@ def mark_label():
     return "", 200
 
 
+@app.get('/download')
+def download_dataset():
+    file_format = request.args.get("format", default="csv")
+    dataset_name = request.args.get("dataset")
+    dataset_path = compose_dataset_path(dataset_name)
+
+    if file_format == "csv":
+        file_to_send = "../" + dataset_path
+        return send_file(file_to_send, as_attachment=True)
+
+    elif file_format == "json":
+        temp_dataset_name = extract_filename(dataset_name) + ".json"
+        with TemporaryDirectory() as tempdir:
+            data = read_csv_dataset(dataset_path)
+            data.to_json(os.path.join(tempdir, temp_dataset_name), orient="records")
+            file_to_send = safe_join(tempdir, temp_dataset_name)
+            return send_file(file_to_send, as_attachment=True)
+
+
+def extract_filename(dataset_name: str) -> str:
+    return dataset_name[:dataset_name.rfind(".")]
+
+
 def set_label_for_dataset_rows(dataset: DataFrame, ids: list[int], label: str) -> None:
     dataset.loc[ids, "label"] = label
 
 
 def compose_dataset_path(dataset_name):
-    return os.path.join(DATASET_FOLDER, dataset_name)
+    return safe_join(DATASET_FOLDER, dataset_name)
 
 
 def handle_search(dataset_path, query):

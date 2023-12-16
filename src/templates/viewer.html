@@ -57,14 +57,13 @@
             <button id="assignLabelButton" type="button" class="btn btn-primary">
                 Assign label
             </button>
-            <div class="dropdown">
+            <div class="d-flex dropdown">
                 <button type="button" class="btn btn-primary dropdown-toggle ms-2" data-bs-toggle="dropdown">
-                    Download
-                    {#                    Download <img src="{{ url_for('static', filename="img/download.svg") }}" alt="download"/>#}
+                    Download <img src="{{ url_for('static', filename="img/download.svg") }}" alt="download"/>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">csv</a></li>
-                    <li><a class="dropdown-item" href="#">json</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('download_dataset', dataset=current_dataset, format="csv") }}">csv</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('download_dataset', dataset=current_dataset, format="json") }}">json</a></li>
                 </ul>
             </div>
 
