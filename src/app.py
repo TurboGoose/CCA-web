@@ -7,9 +7,9 @@ from pandas import DataFrame
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
+import db
 from consts import DATASET_FOLDER, INDEX_FOLDER
 from csv_util import write_csv_dataset, read_csv_dataset, transform_and_write_csv_dataset
-from db import *
 from indexer import IndexManager
 from searcher import search
 
@@ -37,7 +37,7 @@ def show_data():
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
 
-    labels = get_labels_for_dataset(dataset_name)
+    labels = db.get_labels_for_dataset(dataset_name)
 
     return render_template('viewer.html', data=data, query=query, labels=labels,
                            current_dataset=current_dataset, other_datasets=other_datasets)
@@ -50,8 +50,8 @@ def add_new_label():
         # flash
         return redirect(url_for('show_data'))
     new_label = request.form.get('label')
-    if new_label not in get_labels_for_dataset(dataset_name):
-        add_label_for_dataset(new_label, dataset_name)
+    if new_label not in db.get_labels_for_dataset(dataset_name):
+        db.save_label_for_dataset(new_label, dataset_name)
     # else: flash
     return redirect(url_for('show_data', dataset=dataset_name))
 
@@ -71,7 +71,7 @@ def upload_file():
         dataset_path = compose_dataset_path(dataset_name)
 
         file.save(dataset_path)
-        add_dataset_to_db(dataset_name)
+        db.save_dataset(dataset_name)
         transform_and_write_csv_dataset(dataset_path)
         Thread(target=indexer.index, args=(dataset_path,)).start()
         return redirect(url_for('show_data', dataset=dataset_name))
@@ -128,7 +128,7 @@ def allowed_file(filename):
 
 
 def get_dataset_list(current_dataset=None):
-    all_datasets = get_datasets()
+    all_datasets = db.get_datasets()
     if current_dataset is not None and current_dataset in all_datasets:
         all_datasets.remove(current_dataset)
     return all_datasets
