@@ -1,85 +1,60 @@
+const DEFAULT_LABEL_PLACEHOLDER = "Choose label";
+let currentLabel = DEFAULT_LABEL_PLACEHOLDER;
+
+// choose selected label
+$("#chooseLabelSelect").each(function () {
+    if ($(this).children().length === 0) {
+        $(this).append(
+            $(`<option value='default'>${DEFAULT_LABEL_PLACEHOLDER}</option>`)
+        )
+    }
+    currentLabel = $(this).children(":first")
+        .prop("selected", true)
+        .prop("disabled", true)
+        .text();
+});
+
+
+// change label
+$("#chooseLabelSelect").change(function () {
+    $(this).children("option[value='default']").remove();
+    $(this).children("option:selected").each(function () {
+        currentLabel = $(this).text();
+    });
+    $(this).children("option:selected")
+        .prop("disabled",true)
+        .siblings().removeAttr("disabled");
+})
+
 function getCurrentDataset() {
     const url = new URL(window.location.href);
     return url.searchParams.get("dataset");
 }
 
-const DEFAULT_LABEL_PLACEHOLDER = 'Choose label';
-let labelSelect = document.getElementById('chooseLabelSelect');
-
-function setDefaultLabel() {
-    if (labelSelect.options.length === 0) {
-        console.log()
-        let placeholderOption = document.createElement('option');
-        placeholderOption.textContent = DEFAULT_LABEL_PLACEHOLDER;
-        placeholderOption.value = 'default';
-        labelSelect.appendChild(placeholderOption);
-    }
-    const firstOpt = labelSelect.options[0];
-    firstOpt.selected = true;
-    firstOpt.disabled = true;
-    return firstOpt.text;
-}
-
-let currentLabel = setDefaultLabel();
-
-// change label
-document.getElementById('chooseLabelSelect').addEventListener("change", event => {
-    selectOption('chooseLabelSelect', event.target.value);
-});
-
-function selectOption(selectId, optionValue) {
-    currentLabel = optionValue;
-    const selectElement = document.getElementById(selectId);
-    const options = selectElement.options;
-
-    for (let i = 0; i < options.length; i++) {
-        if (options[i].disabled) {
-            if (options[i].text === DEFAULT_LABEL_PLACEHOLDER) {
-                labelSelect.remove(i);
-            } else {
-                options[i].disabled = false;
-            }
-            break;
-        }
-    }
-
-    for (let j = 0; j < options.length; j++) {
-        if (options[j].value === optionValue) {
-            options[j].disabled = true;
-            break;
-        }
-    }
-}
-
 // assign label
-document.getElementById('assignLabelButton').addEventListener("click", event => {
+$("#assignLabelButton").click(function () {
     if (!getCurrentDataset() || currentLabel === DEFAULT_LABEL_PLACEHOLDER) {
-        return
+        return;
     }
-    const checkedBoxes = document.querySelectorAll('input[id^="checkbox-"]:checked');
     const ids = [];
-    checkedBoxes.forEach(element => {
-        element.checked = false;
-        const checkboxId = element.id;
-        const parts = checkboxId.split('-');
-        const id = parts[1];
+    $("input[id^='checkbox-']:checked").each(function() {
+        const checkbox = $(this).prop("checked", false).get(0);
+        const id = checkbox.id.split("-")[1];
         ids.push(parseInt(id, 10));
     });
 
-    const body = {"label": currentLabel, "dataset": getCurrentDataset(), "ids": ids};
-    const url = new URL(window.location.href.split("?")[0]);
+    const url = new URL(window.location.origin);
     url.pathname = "/mark";
 
+    const body = {"label": currentLabel, "dataset": getCurrentDataset(), "ids": ids};
+
     fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         },
         body: JSON.stringify(body)
+    }).then(function () {
+        ids.forEach(id => $(`td[id="label-${id}"]`).text(currentLabel))
     });
-
-    ids.forEach(id => {
-        const label = document.querySelector(`td[id^="label-${id}"]`);
-        label.innerText = currentLabel;
-    })
 });
