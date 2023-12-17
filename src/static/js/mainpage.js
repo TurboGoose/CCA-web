@@ -1,22 +1,31 @@
+$(document).ready(function () {
+    $("#searchForm").submit(function (event) {
+        if (!getCurrentDataset()) {
+            return
+        }
+        event.preventDefault();
+        const searchQuery = $("searchInput").value();
+        window.location.href = addQueryParamToCurrentURL(searchQuery);
+    })
+
+    $("#chooseDatasetSelect").change(function (event) {
+        redirectToNewDataset(event.target.value);
+    })
+})
+
 function getCurrentDataset() {
     const url = new URL(window.location.href);
     return url.searchParams.get("dataset");
 }
 
-document.getElementById('searchForm').addEventListener('submit', event => {
-    if (!getCurrentDataset()) {
-        return
-    }
-    event.preventDefault();
-    const searchQuery = document.getElementById('searchInput').value;
+function addQueryParamToCurrentURL(query) {
     const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('query', searchQuery);
-    window.location.href = newUrl.toString();
-});
+    newUrl.searchParams.set('query', query);
+    return newUrl.toString();
+}
 
-
-document.getElementById('chooseDatasetSelect').addEventListener("change", event => {
-    const newUrl = new URL(window.location.href.split('?')[0]);
-    newUrl.searchParams.set('dataset', event.target.value);
+function redirectToNewDataset(dataset) {
+    const newUrl = new URL(window.location.pathname);
+    newUrl.searchParams.set('dataset', dataset);
     window.location.href = newUrl.toString();
-});
+}
