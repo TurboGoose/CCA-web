@@ -25,7 +25,7 @@ function addQueryParamToCurrentURL(query) {
 }
 
 function redirectToNewDataset(dataset) {
-    const newUrl = new URL(window.location.pathname);
+    const newUrl = new URL(window.location.origin + window.location.pathname);
     newUrl.searchParams.set('dataset', dataset);
     window.location.href = newUrl.toString();
 }
