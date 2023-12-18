@@ -13,6 +13,15 @@ def write_csv_dataset(dataset: DataFrame, dataset_path: str) -> None:
     dataset.to_csv(dataset_path, index=False)
 
 
+def rename_csv_dataset(dataset_path: str, new_name: str) -> None:
+    new_dataset_path = dataset_path.replace(os.path.basename(dataset_path), new_name)
+    if not os.path.exists(dataset_path):
+        raise ValueError(f"Cannot rename dataset: file '{dataset_path}' does not exist")
+    if os.path.exists(new_dataset_path):
+        raise ValueError(f"Cannot rename dataset: file '{new_dataset_path}' already exists")
+    os.rename(dataset_path, new_dataset_path)
+
+
 def delete_csv_dataset(dataset_path: str) -> None:
     if os.path.exists(dataset_path):
         os.remove(dataset_path)

@@ -56,7 +56,40 @@
                 <input type="submit" class="btn btn-danger ms-2" value="Delete">
                 <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
             </form>
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#renameDatasetModal">Rename
+            </button>
+
         {% endif %}
+    </div>
+
+    <!-- Rename dataset modal -->
+    <div class="modal fade" id="renameDatasetModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Rename dataset</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <form method="POST" action="{{ url_for('rename_dataset') }}" class="form-floating"
+                              id="datasetRenameForm">
+                            <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                            <div class="form-floating">
+                                <input type="text" id="floatingName" required
+                                       name="new_name" class="form-control" value="{{ current_dataset }}">
+                                <label for="floatingName">New dataset name</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" form="datasetRenameForm">Rename</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     {% if current_dataset %}
