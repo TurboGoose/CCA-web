@@ -51,6 +51,12 @@
                 data-bs-target="#uploadFileModal">
             Upload dataset
         </button>
+        {% if current_dataset %}
+            <form method="POST" action="{{ url_for('delete_dataset') }}">
+                <input type="submit" class="btn btn-danger ms-2" value="Delete">
+                <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+            </form>
+        {% endif %}
     </div>
 
     {% if current_dataset %}

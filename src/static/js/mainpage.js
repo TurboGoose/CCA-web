@@ -6,11 +6,11 @@ $(document).ready(function () {
         event.preventDefault();
         const searchQuery = $("searchInput").value();
         window.location.href = addQueryParamToCurrentURL(searchQuery);
-    })
+    });
 
     $("#chooseDatasetSelect").change(function (event) {
         redirectToNewDataset(event.target.value);
-    })
+    });
 })
 
 function getCurrentDataset() {

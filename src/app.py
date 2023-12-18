@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 
 import db
 from consts import DATASET_FOLDER, INDEX_FOLDER
-from csv_util import write_csv_dataset, read_csv_dataset, transform_and_write_csv_dataset
+from datasets import *
 from indexer import IndexManager
 from searcher import search
 
@@ -73,7 +73,7 @@ def upload_file():
         file.save(dataset_path)
         db.save_dataset(dataset_name)
         transform_and_write_csv_dataset(dataset_path)
-        Thread(target=indexer.index, args=(dataset_path,)).start()
+        Thread(target=indexer.create_index, args=(dataset_path,)).start()
         return redirect(url_for('show_data', dataset=dataset_name))
 
 
@@ -105,6 +105,16 @@ def download_dataset():
             data.to_json(os.path.join(tempdir, temp_dataset_name), orient="records")
             file_to_send = safe_join(tempdir, temp_dataset_name)
             return send_file(file_to_send, as_attachment=True)
+
+
+@app.post("/dataset/delete")
+def delete_dataset():
+    dataset_name = request.form.get('dataset')
+    dataset_path = compose_dataset_path(dataset_name)
+    db.delete_dataset(dataset_name)
+    delete_csv_dataset(dataset_path)
+    indexer.delete_index(dataset_path)
+    return redirect(url_for('show_data', dataset=None))
 
 
 def extract_filename(dataset_name: str) -> str:

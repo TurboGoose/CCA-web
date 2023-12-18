@@ -1,9 +1,10 @@
 import os
+import shutil
 
 from whoosh.fields import *
 from whoosh.index import create_in
 
-from csv_util import read_csv_dataset
+from datasets import read_csv_dataset
 
 
 class IndexManager:
@@ -12,7 +13,7 @@ class IndexManager:
         if not os.path.exists(indices_dir):
             os.mkdir(indices_dir)
 
-    def index(self, dataset_path):
+    def create_index(self, dataset_path):
         index_name = os.path.basename(dataset_path)
         index_dir = os.path.join(self.indices_dir, index_name)
         if not os.path.exists(index_dir):
@@ -28,5 +29,10 @@ class IndexManager:
 
         writer.commit()
 
-    # index deletion
+    def delete_index(self, dataset_path: str) -> None:
+        index_name = os.path.basename(dataset_path)
+        index_dir = os.path.join(self.indices_dir, index_name)
+        if os.path.exists(index_dir):
+            shutil.rmtree(index_dir, ignore_errors=True)
+
     # index update

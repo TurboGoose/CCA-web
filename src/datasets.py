@@ -13,6 +13,11 @@ def write_csv_dataset(dataset: DataFrame, dataset_path: str) -> None:
     dataset.to_csv(dataset_path, index=False)
 
 
+def delete_csv_dataset(dataset_path: str) -> None:
+    if os.path.exists(dataset_path):
+        os.remove(dataset_path)
+
+
 def read_csv_dataset(dateset_path: str) -> DataFrame:
     if not os.path.exists(dateset_path):
         raise FileNotFoundError(f"File '{dateset_path}' not exists")
