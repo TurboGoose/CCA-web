@@ -1,4 +1,7 @@
 # CCA-web
+![workflow-status](https://github.com/TurboGoose/CCA-web/actions/workflows/cca-web-ci.yaml/badge.svg)
+
+
 Web version of [Chat-Corpora-Annotator](https://github.com/yakovypg/Chat-Corpora-Annotator).
 
 # Local deployment guide
