@@ -140,6 +140,26 @@
                     data-bs-target="#addNewLabelModal">
                 <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
             </button>
+
+            <div class="d-flex dropdown ms-1">
+                <button type="button" class="btn btn-outline-secondary btn-sm p-2" data-bs-toggle="dropdown">
+                    <img src="{{ url_for('static', filename='img/three_dots.svg') }}" alt="dots">
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <button type="button" class="btn dropdown-item" data-bs-toggle="modal"
+                                data-bs-target="#renameDatasetLabel">
+                            Rename
+                        </button>
+                    </li>
+                    <li>
+                        <form method="POST" action="{{ url_for('delete_label') }}">
+                            <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                            <button class="dropdown-item btn text-danger">Delete</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
     {% endif %}
 </div>

@@ -127,8 +127,17 @@ def rename_dataset():
     except ValueError:
         new_name = dataset_name
         # flash
-    print(url_for("show_data", dataset=new_name))
     return redirect(url_for("show_data", dataset=new_name))
+
+
+@app.post("/label/rename")
+def rename_label():
+    pass
+
+
+@app.post("/label/delete")
+def delete_label():
+    pass
 
 
 def extract_filename(dataset_name: str) -> str:
