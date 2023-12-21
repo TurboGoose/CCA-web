@@ -34,8 +34,6 @@
 
     <div id="labelsBlock">
         {% if current_dataset %}
-
-
             <div class="d-flex justify-content-start flex-grow-1">
                 <div class="d-flex">
                     <button id="assignLabelButton" type="button" class="btn btn-primary text-nowrap">
@@ -72,6 +70,9 @@
                         <li>
                             <form method="POST" action="{{ url_for('delete_label') }}">
                                 <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                                <input id="deleteLabelInput" type="hidden" name="label"/>
+
+                                <script>$("#deleteLabelInput").val(currentLabel);</script>
                                 <button class="dropdown-item btn text-danger">Delete</button>
                             </form>
                         </li>
@@ -254,6 +255,38 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button class="btn btn-primary" form="addNewLabelForm">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename label modal -->
+<div class="modal fade" id="renameLabelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Rename label</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form method="POST" action="{{ url_for('rename_label') }}" class="form-floating"
+                          id="labelRenameForm">
+                        <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                        <input id="labelOldNameInput" type="hidden" name="old_name"/>
+                        <script>$("#labelOldNameInput").val(currentLabel);</script>
+                        <div class="form-floating">
+                            <input type="text" id="labelNewNameInput" required
+                                   name="new_name" class="form-control">
+                            <script>$("#labelNewNameInput").val(currentLabel);</script>
+                            <label for="labelNewNameInput">New label name</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" form="labelRenameForm">Rename</button>
             </div>
         </div>
     </div>

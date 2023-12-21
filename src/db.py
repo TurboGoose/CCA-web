@@ -74,7 +74,7 @@ def get_labels_for_dataset(dataset: str) -> list[str]:
 def rename_label_for_dataset(dataset: str, old_label_name: str, new_label_name: str) -> None:
     con = sqlite3.connect(DATABASE_FILE)
     cur = con.cursor()
-    cur.execute(f"UPDATE labels SET label='{new_label_name}' WHERE dataset_name='{dataset}' AND label='{old_label_name}';")
+    cur.execute(f"UPDATE labels SET name='{new_label_name}' WHERE dataset_name='{dataset}' AND name='{old_label_name}';")
     con.commit()
     con.close()
 
@@ -82,6 +82,6 @@ def rename_label_for_dataset(dataset: str, old_label_name: str, new_label_name: 
 def delete_label_for_dataset(label: str, dataset: str) -> None:
     con = sqlite3.connect(DATABASE_FILE)
     cur = con.cursor()
-    cur.execute(f"DELETE FROM labels WHERE dataset_name='{dataset}' AND label='{label}';")
+    cur.execute(f"DELETE FROM labels WHERE dataset_name='{dataset}' AND name='{label}';")
     con.commit()
     con.close()

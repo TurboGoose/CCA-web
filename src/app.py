@@ -132,12 +132,19 @@ def rename_dataset():
 
 @app.post("/label/rename")
 def rename_label():
-    pass
+    dataset = request.form.get("dataset")
+    old_name = request.form.get("old_name")
+    new_name = request.form.get("new_name")
+    db.rename_label_for_dataset(dataset, old_name, new_name)
+    return redirect(url_for("show_data", dataset=dataset))
 
 
 @app.post("/label/delete")
 def delete_label():
-    pass
+    dataset = request.form.get("dataset")
+    label = request.form.get("label")
+    db.delete_label_for_dataset(label, dataset)
+    return redirect(url_for("show_data", dataset=dataset))
 
 
 def extract_filename(dataset_name: str) -> str:
