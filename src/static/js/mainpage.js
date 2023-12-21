@@ -4,7 +4,7 @@ $(document).ready(function () {
             return
         }
         event.preventDefault();
-        const searchQuery = $("searchInput").value();
+        const searchQuery = $("#searchInput").val();
         window.location.href = addQueryParamToCurrentURL(searchQuery);
     });
 
