@@ -2,12 +2,20 @@ from tempfile import TemporaryDirectory
 from threading import Thread
 
 from flask import Flask, request, redirect, url_for, send_file, render_template
+from pandas import DataFrame
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 import db
+import os
 from consts import DATASET_FOLDER, INDEX_FOLDER
-from datasets import *
+from datasets import (
+    read_csv_dataset,
+    transform_and_write_csv_dataset,
+    write_csv_dataset,
+    delete_csv_dataset,
+    rename_csv_dataset,
+)
 from indexer import IndexManager
 from searcher import search
 
@@ -22,23 +30,32 @@ def show_data():
 
     if not dataset_name:
         # flash
-        return render_template("viewer.html", data=None, other_datasets=get_dataset_list())
+        return render_template(
+            "viewer.html", data=None, other_datasets=get_dataset_list()
+        )
 
     dataset_path = compose_dataset_path(dataset_name)
     if not os.path.exists(dataset_path):
-        # flash
         return redirect("/")
 
     query = request.args.get("query")
-    data = handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
+    data = (
+        handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
+    )
 
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
 
     labels = db.get_labels_for_dataset(dataset_name)
 
-    return render_template("viewer.html", data=data, query=query, labels=labels,
-                           current_dataset=current_dataset, other_datasets=other_datasets)
+    return render_template(
+        "viewer.html",
+        data=data,
+        query=query,
+        labels=labels,
+        current_dataset=current_dataset,
+        other_datasets=other_datasets,
+    )
 
 
 @app.post("/label")
@@ -148,7 +165,7 @@ def delete_label():
 
 
 def extract_filename(dataset_name: str) -> str:
-    return dataset_name[:dataset_name.rfind(".")]
+    return dataset_name[: dataset_name.rfind(".")]
 
 
 def set_label_for_dataset_rows(dataset: DataFrame, ids: list[int], label: str) -> None:
