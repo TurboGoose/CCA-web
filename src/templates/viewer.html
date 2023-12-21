@@ -53,6 +53,20 @@
             <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
         </button>
         {% if current_dataset %}
+            <div class="d-flex dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle ms-1 p-2" data-bs-toggle="dropdown">
+                    <img src="{{ url_for('static', filename='img/download.svg') }}" alt="dots">
+
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item"
+                           href="{{ url_for('download_dataset', dataset=current_dataset, format="csv") }}">csv</a></li>
+                    <li><a class="dropdown-item"
+                           href="{{ url_for('download_dataset', dataset=current_dataset, format="json") }}">json</a>
+                    </li>
+                </ul>
+            </div>
+
             <div class="d-flex dropdown ms-1">
                 <button type="button" class="btn btn-outline-secondary btn-sm p-2" data-bs-toggle="dropdown">
                     <img src="{{ url_for('static', filename='img/three_dots.svg') }}" alt="dots">
@@ -109,19 +123,6 @@
             <button id="assignLabelButton" type="button" class="btn btn-primary">
                 Assign label
             </button>
-            <div class="d-flex dropdown">
-                <button type="button" class="btn btn-primary dropdown-toggle ms-2" data-bs-toggle="dropdown">
-                    Download
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item"
-                           href="{{ url_for('download_dataset', dataset=current_dataset, format="csv") }}">csv</a></li>
-                    <li><a class="dropdown-item"
-                           href="{{ url_for('download_dataset', dataset=current_dataset, format="json") }}">json</a>
-                    </li>
-                </ul>
-            </div>
-
         </div>
 
         <div class="d-flex justify-content-end flex-grow-1">
@@ -148,7 +149,7 @@
                 <ul class="dropdown-menu">
                     <li>
                         <button type="button" class="btn dropdown-item" data-bs-toggle="modal"
-                                data-bs-target="#renameDatasetLabel">
+                                data-bs-target="#renameLabelModal">
                             Rename
                         </button>
                     </li>
