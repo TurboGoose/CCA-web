@@ -47,19 +47,31 @@
             </select>
             <label for="chooseDatasetSelect">Current dataset</label>
         </div>
-        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
+
+        <button type="button" class="btn btn-primary ms-2 p-2" data-bs-toggle="modal"
                 data-bs-target="#uploadFileModal">
-            Upload dataset
+            <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
         </button>
         {% if current_dataset %}
-            <form method="POST" action="{{ url_for('delete_dataset') }}">
-                <input type="submit" class="btn btn-danger ms-2" value="Delete">
-                <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
-            </form>
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                    data-bs-target="#renameDatasetModal">Rename
-            </button>
-
+            <div class="d-flex dropdown ms-1">
+                <button type="button" class="btn btn-outline-secondary btn-sm p-2" data-bs-toggle="dropdown">
+                    <img src="{{ url_for('static', filename='img/three_dots.svg') }}" alt="dots">
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <button type="button" class="btn dropdown-item" data-bs-toggle="modal"
+                                data-bs-target="#renameDatasetModal">
+                            Rename
+                        </button>
+                    </li>
+                    <li>
+                        <form method="POST" action="{{ url_for('delete_dataset') }}">
+                            <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                            <button class="dropdown-item btn text-danger">Delete</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         {% endif %}
     </div>
 
@@ -124,9 +136,9 @@
 
             <script type="text/javascript" src="{{ url_for('static', filename='js/labels.js') }}"></script>
 
-            <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal"
+            <button type="button" class="btn btn-primary ms-2 p-2" data-bs-toggle="modal"
                     data-bs-target="#addNewLabelModal">
-                Add label
+                <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
             </button>
         </div>
     {% endif %}
