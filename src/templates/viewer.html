@@ -31,7 +31,57 @@
 </nav>
 
 <div class="container d-flex justify-content-between p-0">
-    <div class="d-flex justify-content-start flex-grow-1">
+
+    <div id="labelsBlock">
+        {% if current_dataset %}
+
+
+            <div class="d-flex justify-content-start flex-grow-1">
+                <div class="d-flex">
+                    <button id="assignLabelButton" type="button" class="btn btn-primary">
+                        Assign label
+                    </button>
+                </div>
+                <div class="form-floating col-6 ms-3">
+                    <select id="chooseLabelSelect" class="form-select">
+                        {% for label in labels %}
+                            <option value="{{ label }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="chooseLabelSelect">Current label</label>
+                </div>
+
+                <script type="text/javascript" src="{{ url_for('static', filename='js/labels.js') }}"></script>
+
+                <button type="button" class="btn btn-primary ms-2 p-2" data-bs-toggle="modal"
+                        data-bs-target="#addNewLabelModal">
+                    <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
+                </button>
+
+                <div class="d-flex dropdown ms-1">
+                    <button type="button" class="btn btn-outline-secondary btn-sm p-2" data-bs-toggle="dropdown">
+                        <img src="{{ url_for('static', filename='img/three_dots.svg') }}" alt="dots">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <button type="button" class="btn dropdown-item" data-bs-toggle="modal"
+                                    data-bs-target="#renameLabelModal">
+                                Rename
+                            </button>
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ url_for('delete_label') }}">
+                                <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                                <button class="dropdown-item btn text-danger">Delete</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="datasetBlock" class="d-flex justify-content-end flex-grow-1">
         <div class="form-floating col-4">
             <select id="chooseDatasetSelect" class="form-select">
                 <option id="defaultOptionDataset" selected disabled value="default">
@@ -49,7 +99,7 @@
         </div>
 
         <button type="button" class="btn btn-primary ms-2 p-2" data-bs-toggle="modal"
-                data-bs-target="#uploadFileModal">
+                data-bs-target="#uploadDatasetModal">
             <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
         </button>
         {% if current_dataset %}
@@ -88,126 +138,8 @@
             </div>
         {% endif %}
     </div>
-
-    <!-- Rename dataset modal -->
-    <div class="modal fade" id="renameDatasetModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5">Rename dataset</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div>
-                        <form method="POST" action="{{ url_for('rename_dataset') }}" class="form-floating"
-                              id="datasetRenameForm">
-                            <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
-                            <div class="form-floating">
-                                <input type="text" id="floatingName" required
-                                       name="new_name" class="form-control" value="{{ current_dataset }}">
-                                <label for="floatingName">New dataset name</label>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button class="btn btn-primary" form="datasetRenameForm">Rename</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if current_dataset %}
-        <div class="d-flex justify-content-center">
-            <button id="assignLabelButton" type="button" class="btn btn-primary">
-                Assign label
-            </button>
-        </div>
-
-        <div class="d-flex justify-content-end flex-grow-1">
-            <div class="form-floating col-4">
-                <select id="chooseLabelSelect" class="form-select">
-                    {% for label in labels %}
-                        <option value="{{ label }}">{{ label }}</option>
-                    {% endfor %}
-                </select>
-                <label for="chooseLabelSelect">Current label</label>
-            </div>
-
-            <script type="text/javascript" src="{{ url_for('static', filename='js/labels.js') }}"></script>
-
-            <button type="button" class="btn btn-primary ms-2 p-2" data-bs-toggle="modal"
-                    data-bs-target="#addNewLabelModal">
-                <img src="{{ url_for('static', filename='img/plus-circle.svg') }}" alt="add">
-            </button>
-
-            <div class="d-flex dropdown ms-1">
-                <button type="button" class="btn btn-outline-secondary btn-sm p-2" data-bs-toggle="dropdown">
-                    <img src="{{ url_for('static', filename='img/three_dots.svg') }}" alt="dots">
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <button type="button" class="btn dropdown-item" data-bs-toggle="modal"
-                                data-bs-target="#renameLabelModal">
-                            Rename
-                        </button>
-                    </li>
-                    <li>
-                        <form method="POST" action="{{ url_for('delete_label') }}">
-                            <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
-                            <button class="dropdown-item btn text-danger">Delete</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    {% endif %}
 </div>
 
-<!-- Add new label modal -->
-<div class="modal fade" id="addNewLabelModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Add new label</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ url_for('add_new_label') }}" method="POST" id="addNewLabelForm">
-                    <input type="hidden" name="dataset" value="{{ current_dataset }}">
-                    <input type="text" name="label" class="form-control" placeholder="Label name" required>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-primary" form="addNewLabelForm">Add</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Upload file modal -->
-<div class="modal fade" id="uploadFileModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Upload file</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ url_for('upload_file') }}" method="POST" id="fileUploadForm"
-                      enctype="multipart/form-data">
-                    <input type="file" name="file" class="form-control" required>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-primary" form="fileUploadForm">Upload</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container mt-3 p-0">
     {% if data is not none %}
@@ -250,5 +182,82 @@
     {% endif %}
 
 </div>
+
+{#Modals#}
+
+<!-- Rename dataset modal -->
+<div class="modal fade" id="renameDatasetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Rename dataset</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form method="POST" action="{{ url_for('rename_dataset') }}" class="form-floating"
+                          id="datasetRenameForm">
+                        <input type="hidden" name="dataset" value="{{ current_dataset }}"/>
+                        <div class="form-floating">
+                            <input type="text" id="floatingName" required
+                                   name="new_name" class="form-control" value="{{ current_dataset }}">
+                            <label for="floatingName">New dataset name</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" form="datasetRenameForm">Rename</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Upload dataset modal -->
+<div class="modal fade" id="uploadDatasetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Upload file</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('upload_file') }}" method="POST" id="fileUploadForm"
+                      enctype="multipart/form-data">
+                    <input type="file" name="file" class="form-control" required>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" form="fileUploadForm">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add new label modal -->
+<div class="modal fade" id="addNewLabelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Add new label</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_new_label') }}" method="POST" id="addNewLabelForm">
+                    <input type="hidden" name="dataset" value="{{ current_dataset }}">
+                    <input type="text" name="label" class="form-control" placeholder="Label name" required>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-primary" form="addNewLabelForm">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
