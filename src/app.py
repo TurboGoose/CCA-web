@@ -1,3 +1,5 @@
+import os
+import sys
 from tempfile import TemporaryDirectory
 from threading import Thread
 
@@ -6,10 +8,10 @@ from pandas import DataFrame
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
-import db
-import os
-from consts import DATASET_FOLDER, INDEX_FOLDER
+import models
+from config import DATASET_FOLDER, INDEX_FOLDER, DATA_FOLDER, DATABASE_FILE
 from datasets import (
+    init_dataset_storage,
     read_csv_dataset,
     transform_and_write_csv_dataset,
     write_csv_dataset,
@@ -20,7 +22,13 @@ from indexer import IndexManager
 from searcher import search
 
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
+models.db.init_app(app)
 
+if not os.path.exists(DATA_FOLDER):
+    os.mkdir(DATA_FOLDER)
+
+init_dataset_storage()
 indexer = IndexManager(INDEX_FOLDER)
 
 
@@ -30,23 +38,19 @@ def show_data():
 
     if not dataset_name:
         # flash
-        return render_template(
-            "viewer.html", data=None, other_datasets=get_dataset_list()
-        )
+        return render_template("viewer.html", data=None, other_datasets=get_dataset_list())
 
     dataset_path = compose_dataset_path(dataset_name)
     if not os.path.exists(dataset_path):
         return redirect("/")
 
     query = request.args.get("query")
-    data = (
-        handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
-    )
+    data = handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
 
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
 
-    labels = db.get_labels_for_dataset(dataset_name)
+    labels = models.get_labels_for_dataset(dataset_name)
 
     return render_template(
         "viewer.html",
@@ -65,8 +69,8 @@ def add_new_label():
         # flash
         return redirect(url_for("show_data"))
     new_label = request.form.get("label")
-    if new_label not in db.get_labels_for_dataset(dataset_name):
-        db.save_label_for_dataset(new_label, dataset_name)
+    if new_label not in models.get_labels_for_dataset(dataset_name):
+        models.save_label_for_dataset(new_label, dataset_name)
     # else: flash
     return redirect(url_for("show_data", dataset=dataset_name))
 
@@ -86,7 +90,7 @@ def upload_file():
         dataset_path = compose_dataset_path(dataset_name)
 
         file.save(dataset_path)
-        db.save_dataset(dataset_name)
+        models.save_dataset(dataset_name)
         transform_and_write_csv_dataset(dataset_path)
         Thread(target=indexer.create_index, args=(dataset_path,)).start()
         return redirect(url_for("show_data", dataset=dataset_name))
@@ -126,7 +130,7 @@ def download_dataset():
 def delete_dataset():
     dataset_name = request.form.get("dataset")
     dataset_path = compose_dataset_path(dataset_name)
-    db.delete_dataset(dataset_name)
+    models.delete_dataset(dataset_name)
     delete_csv_dataset(dataset_path)
     indexer.delete_index(dataset_path)
     return redirect(url_for("show_data", dataset=None))
@@ -140,7 +144,7 @@ def rename_dataset():
     try:
         rename_csv_dataset(dataset_path, new_name)
         indexer.rename_index(dataset_path, new_name)
-        db.rename_dataset(dataset_name, new_name)
+        models.rename_dataset(dataset_name, new_name)
     except ValueError:
         new_name = dataset_name
         # flash
@@ -152,7 +156,7 @@ def rename_label():
     dataset = request.form.get("dataset")
     old_name = request.form.get("old_name")
     new_name = request.form.get("new_name")
-    db.rename_label_for_dataset(dataset, old_name, new_name)
+    models.rename_label_for_dataset(dataset, old_name, new_name)
     return redirect(url_for("show_data", dataset=dataset))
 
 
@@ -160,7 +164,7 @@ def rename_label():
 def delete_label():
     dataset = request.form.get("dataset")
     label = request.form.get("label")
-    db.delete_label_for_dataset(label, dataset)
+    models.delete_label_for_dataset(label, dataset)
     return redirect(url_for("show_data", dataset=dataset))
 
 
@@ -185,11 +189,16 @@ def allowed_file(filename):
 
 
 def get_dataset_list(current_dataset=None):
-    all_datasets = db.get_datasets()
+    all_datasets = models.get_datasets()
     if current_dataset is not None and current_dataset in all_datasets:
         all_datasets.remove(current_dataset)
     return all_datasets
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "init":
+            with app.app_context():
+                models.init_db()
+    else:
+        app.run(port=8080, debug=True)

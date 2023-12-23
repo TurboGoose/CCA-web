@@ -1,0 +1,6 @@
+DATETIME_FORMAT = "%m/%d/%Y %H:%M:%S"
+
+DATA_FOLDER = "data"
+DATASET_FOLDER = DATA_FOLDER + "/datasets"
+INDEX_FOLDER = DATA_FOLDER + "/indices"
+DATABASE_FILE = DATA_FOLDER + "/labels.db"

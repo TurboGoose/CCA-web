@@ -5,7 +5,7 @@ from whoosh import highlight
 from whoosh.index import open_dir
 from whoosh.qparser import QueryParser
 
-from consts import INDEX_FOLDER
+from config import INDEX_FOLDER
 from datasets import read_csv_dataset
 
 
