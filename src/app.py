@@ -28,6 +28,7 @@ from searcher import search
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2Mb
 models.db.init_app(app)
 
 if not os.path.exists(DATA_FOLDER):
