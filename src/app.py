@@ -9,7 +9,7 @@ from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 import models
-from config import DATASET_FOLDER, INDEX_FOLDER, DATA_FOLDER, DATABASE_FILE
+from config import DATASET_FOLDER, DATA_FOLDER, DATABASE_FILE
 from datasets import (
     init_dataset_storage,
     read_csv_dataset,
@@ -18,7 +18,12 @@ from datasets import (
     delete_csv_dataset,
     rename_csv_dataset,
 )
-from indexer import IndexManager
+from indexer import (
+    init_index_storage,
+    create_index,
+    delete_index,
+    rename_index,
+)
 from searcher import search
 
 app = Flask(__name__)
@@ -29,7 +34,7 @@ if not os.path.exists(DATA_FOLDER):
     os.mkdir(DATA_FOLDER)
 
 init_dataset_storage()
-indexer = IndexManager(INDEX_FOLDER)
+init_index_storage()
 
 
 @app.get("/")
@@ -92,7 +97,7 @@ def upload_file():
         file.save(dataset_path)
         models.save_dataset(dataset_name)
         transform_and_write_csv_dataset(dataset_path)
-        Thread(target=indexer.create_index, args=(dataset_path,)).start()
+        Thread(target=create_index, args=(dataset_path,)).start()
         return redirect(url_for("show_data", dataset=dataset_name))
 
 
@@ -132,7 +137,7 @@ def delete_dataset():
     dataset_path = compose_dataset_path(dataset_name)
     models.delete_dataset(dataset_name)
     delete_csv_dataset(dataset_path)
-    indexer.delete_index(dataset_path)
+    delete_index(dataset_path)
     return redirect(url_for("show_data", dataset=None))
 
 
@@ -143,7 +148,7 @@ def rename_dataset():
     new_name = request.form.get("new_name")
     try:
         rename_csv_dataset(dataset_path, new_name)
-        indexer.rename_index(dataset_path, new_name)
+        rename_index(dataset_path, new_name)
         models.rename_dataset(dataset_name, new_name)
     except ValueError:
         new_name = dataset_name
