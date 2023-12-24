@@ -11,7 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 
 import models
-from config import DATASET_FOLDER, DATA_FOLDER, DATABASE_FILE
+from config import DATASET_FOLDER, DATA_FOLDER, DATABASE_FILE, MAX_CONTENT_LENGTH_MB
 from datasets import (
     init_dataset_storage,
     read_csv_dataset,
@@ -30,10 +30,11 @@ from searcher import search
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "super secret key"
-app.config["SESSION_TYPE"] = "filesystem"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
-app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2Mb
+app.config.from_object("config")
+# app.config["SECRET_KEY"] = "super secret key"
+# app.config["SESSION_TYPE"] = "filesystem"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
+# app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2Mb
 models.db.init_app(app)
 
 if not os.path.exists(DATA_FOLDER):
@@ -202,6 +203,13 @@ def delete_label():
     except SQLAlchemyError:
         pass
     return redirect(url_for("show_data", dataset=dataset))
+
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    flash("Failed to upload dataset")
+    flash(f"Dataset size must not exceed {MAX_CONTENT_LENGTH_MB} Mb")
+    return redirect(url_for("show_data"))
 
 
 def extract_filename(dataset_name: str) -> str:
