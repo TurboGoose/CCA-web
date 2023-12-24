@@ -30,6 +30,23 @@
     </div>
 </nav>
 
+{# Toast alerts #}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div class="toast show" role="alert">
+                <div class="toast-header">
+                    <strong class="me-auto">{{ messages[0] }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    {{ messages[1] }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}
+
 <div class="container d-flex justify-content-between p-0">
 
     <div id="labelsBlock">
@@ -83,7 +100,7 @@
     </div>
 
     <div id="datasetBlock" class="d-flex justify-content-end flex-grow-1">
-        <div class="form-floating col-4">
+        <div class="form-floating col-3">
             <select id="chooseDatasetSelect" class="form-select">
                 <option id="defaultOptionDataset" selected disabled value="default">
                     {% if current_dataset %}
@@ -221,18 +238,19 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Upload file</h1>
+                <h1 class="modal-title fs-5">Upload dataset</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ url_for('upload_file') }}" method="POST" id="fileUploadForm"
+                <form action="{{ url_for('upload_dataset') }}" method="POST" id="datasetUploadForm"
                       enctype="multipart/form-data">
                     <input type="file" name="file" class="form-control" required>
+                    <input type="hidden" name="current_dataset" value="{{ current_dataset }}">
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-primary" form="fileUploadForm">Upload</button>
+                <button class="btn btn-primary" form="datasetUploadForm">Upload</button>
             </div>
         </div>
     </div>

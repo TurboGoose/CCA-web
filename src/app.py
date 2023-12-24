@@ -3,10 +3,12 @@ import sys
 from tempfile import TemporaryDirectory
 from threading import Thread
 
-from flask import Flask, request, redirect, url_for, send_file, render_template
+from flask import Flask, request, redirect, url_for, send_file, render_template, flash
 from pandas import DataFrame
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
 
 import models
 from config import DATASET_FOLDER, DATA_FOLDER, DATABASE_FILE
@@ -27,6 +29,9 @@ from indexer import (
 from searcher import search
 
 app = Flask(__name__)
+
+app.config["SECRET_KEY"] = "super secret key"
+app.config["SESSION_TYPE"] = "filesystem"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2Mb
 models.db.init_app(app)
@@ -43,7 +48,6 @@ def show_data():
     dataset_name = request.args.get("dataset")
 
     if not dataset_name:
-        # flash
         return render_template("viewer.html", data=None, other_datasets=get_dataset_list())
 
     dataset_path = compose_dataset_path(dataset_name)
@@ -72,34 +76,49 @@ def show_data():
 def add_new_label():
     dataset_name = request.form.get("dataset")
     if not dataset_name:
-        # flash
         return redirect(url_for("show_data"))
     new_label = request.form.get("label")
-    if new_label not in models.get_labels_for_dataset(dataset_name):
+    try:
         models.save_label_for_dataset(new_label, dataset_name)
-    # else: flash
+    except IntegrityError:
+        flash("Failed to create label")
+        flash("Label with this name already exists")
     return redirect(url_for("show_data", dataset=dataset_name))
 
 
 @app.post("/upload")
-def upload_file():
+def upload_dataset():
     if "file" not in request.files:
-        # flash("No file part")
+        flash("Failed to upload dataset")
+        flash("Failed to load file")
         return redirect("/")
 
     file = request.files["file"]
     if file.filename == "":
-        # flash("No selected file")
+        flash("Failed to upload dataset")
+        flash("No file provided")
         return redirect("/")
+
+    current_dataset_name = request.form.get("current_dataset")
     if file and allowed_file(file.filename):
         dataset_name = secure_filename(file.filename)
         dataset_path = compose_dataset_path(dataset_name)
 
-        file.save(dataset_path)
-        models.save_dataset(dataset_name)
-        transform_and_write_csv_dataset(dataset_path)
-        Thread(target=create_index, args=(dataset_path,)).start()
-        return redirect(url_for("show_data", dataset=dataset_name))
+        try:
+            models.save_dataset(dataset_name)
+            file.save(dataset_path)
+            transform_and_write_csv_dataset(dataset_path)
+            Thread(target=create_index, args=(dataset_path,)).start()
+            return redirect(url_for("show_data", dataset=dataset_name))
+        except IntegrityError:
+            flash("Failed to upload dataset")
+            flash("Dataset with this name already exists")
+            return redirect(url_for("show_data", dataset=current_dataset_name))
+
+    else:
+        flash("Failed to upload dataset")
+        flash("Wrong dataset format (only .csv allowed)")
+        return redirect(url_for("show_data", dataset=current_dataset_name))
 
 
 @app.post("/mark")
@@ -136,9 +155,12 @@ def download_dataset():
 def delete_dataset():
     dataset_name = request.form.get("dataset")
     dataset_path = compose_dataset_path(dataset_name)
-    models.delete_dataset(dataset_name)
-    delete_csv_dataset(dataset_path)
-    delete_index(dataset_path)
+    try:
+        models.delete_dataset(dataset_name)
+        delete_csv_dataset(dataset_path)
+        delete_index(dataset_path)
+    except SQLAlchemyError:
+        pass
     return redirect(url_for("show_data", dataset=None))
 
 
@@ -148,12 +170,13 @@ def rename_dataset():
     dataset_path = compose_dataset_path(dataset_name)
     new_name = request.form.get("new_name")
     try:
+        models.rename_dataset(dataset_name, new_name)
         rename_csv_dataset(dataset_path, new_name)
         rename_index(dataset_path, new_name)
-        models.rename_dataset(dataset_name, new_name)
-    except ValueError:
+    except IntegrityError:
         new_name = dataset_name
-        # flash
+        flash("Failed to rename dataset")
+        flash("Dataset with this name already exists")
     return redirect(url_for("show_data", dataset=new_name))
 
 
@@ -162,7 +185,11 @@ def rename_label():
     dataset = request.form.get("dataset")
     old_name = request.form.get("old_name")
     new_name = request.form.get("new_name")
-    models.rename_label_for_dataset(dataset, old_name, new_name)
+    try:
+        models.rename_label_for_dataset(dataset, old_name, new_name)
+    except IntegrityError:
+        flash("Failed to rename label")
+        flash("Label with this name already exists")
     return redirect(url_for("show_data", dataset=dataset))
 
 
@@ -170,7 +197,10 @@ def rename_label():
 def delete_label():
     dataset = request.form.get("dataset")
     label = request.form.get("label")
-    models.delete_label_for_dataset(label, dataset)
+    try:
+        models.delete_label_for_dataset(label, dataset)
+    except SQLAlchemyError:
+        pass
     return redirect(url_for("show_data", dataset=dataset))
 
 
