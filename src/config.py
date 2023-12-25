@@ -1,0 +1,14 @@
+import os
+
+DATETIME_FORMAT = "%m/%d/%Y %H:%M:%S"
+
+DATA_FOLDER = "data"
+DATASET_FOLDER = DATA_FOLDER + "/datasets"
+INDEX_FOLDER = DATA_FOLDER + "/indices"
+DATABASE_FILE = DATA_FOLDER + "/labels.db"
+
+SECRET_KEY = "ja;sdf9f9jlfg-sdag9"
+SESSION_TYPE = "filesystem"
+SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.abspath(DATABASE_FILE)
+MAX_CONTENT_LENGTH_MB = 2
+MAX_CONTENT_LENGTH = MAX_CONTENT_LENGTH_MB * 1024 * 1024
