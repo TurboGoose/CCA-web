@@ -5,10 +5,9 @@ from threading import Thread
 
 from flask import Flask, request, redirect, url_for, send_file, render_template, flash
 from pandas import DataFrame
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-
 
 import models
 from config import DATASET_FOLDER, DATA_FOLDER, MAX_CONTENT_LENGTH_MB
@@ -45,14 +44,18 @@ def show_data():
     dataset_name = request.args.get("dataset")
 
     if not dataset_name:
-        return render_template("viewer.html", data=None, other_datasets=get_dataset_list())
+        return render_template(
+            "viewer.html", data=None, other_datasets=get_dataset_list()
+        )
 
     dataset_path = compose_dataset_path(dataset_name)
     if not os.path.exists(dataset_path):
         return redirect("/")
 
     query = request.args.get("query")
-    data = handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
+    data = (
+        handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
+    )
 
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)

@@ -48,7 +48,9 @@ def test_rename_index(temp_index_folder, sample_dataset_path):
 def test_rename_index_error_if_new_exists(temp_index_folder, sample_dataset_path):
     create_index(sample_dataset_path)
     new_name = "already_exists"
-    another_sample_dataset_path = os.path.join(os.path.dirname(sample_dataset_path), new_name)
+    another_sample_dataset_path = os.path.join(
+        os.path.dirname(sample_dataset_path), new_name
+    )
     shutil.copy(sample_dataset_path, another_sample_dataset_path)
     create_index(another_sample_dataset_path)
 
@@ -56,6 +58,8 @@ def test_rename_index_error_if_new_exists(temp_index_folder, sample_dataset_path
         rename_index(sample_dataset_path, new_name)
 
 
-def test_rename_index_error_if_old_does_not_exist(temp_index_folder, sample_dataset_path):
+def test_rename_index_error_if_old_does_not_exist(
+    temp_index_folder, sample_dataset_path
+):
     with pytest.raises(ValueError):
         rename_index(sample_dataset_path, "should_fail")

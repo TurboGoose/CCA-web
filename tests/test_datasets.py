@@ -49,7 +49,9 @@ def test_rename_csv_dataset(sample_dataset_path):
 
 def test_rename_dataset_error_if_new_exists(sample_dataset_path):
     new_name = "new_test.csv"
-    another_sample_dataset_path = os.path.join(os.path.dirname(sample_dataset_path), new_name)
+    another_sample_dataset_path = os.path.join(
+        os.path.dirname(sample_dataset_path), new_name
+    )
     shutil.copy(sample_dataset_path, another_sample_dataset_path)
 
     with pytest.raises(ValueError):

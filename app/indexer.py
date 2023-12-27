@@ -23,7 +23,9 @@ def create_index(dataset_path):
     if not os.path.exists(index_dir):
         os.mkdir(index_dir)
 
-    schema = Schema(id=NUMERIC(stored=True, unique=True, bits=64, sortable=True), text=TEXT)
+    schema = Schema(
+        id=NUMERIC(stored=True, unique=True, bits=64, sortable=True), text=TEXT
+    )
     index = create_in(index_dir, schema)
     writer = index.writer()
 
@@ -52,5 +54,7 @@ def rename_index(dataset_path: str, new_index_name: str) -> None:
         )
 
     if not os.path.exists(old_index_dir):
-        raise ValueError(f"Cannot rename index '{old_index_name}', because it does not exist")
+        raise ValueError(
+            f"Cannot rename index '{old_index_name}', because it does not exist"
+        )
     os.rename(old_index_dir, new_index_dir)
