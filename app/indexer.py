@@ -4,17 +4,17 @@ import shutil
 from whoosh.fields import NUMERIC, TEXT, Schema
 from whoosh.index import create_in
 
-from config import INDEX_FOLDER
-from datasets import read_csv_dataset
+from . import config
+from app.datasets import read_csv_dataset
 
 
 def init_index_storage():
-    if not os.path.exists(INDEX_FOLDER):
-        os.mkdir(INDEX_FOLDER)
+    if not os.path.exists(config.INDEX_FOLDER):
+        os.mkdir(config.INDEX_FOLDER)
 
 
 def _compose_index_dir(index_name: str) -> str:
-    return os.path.join(INDEX_FOLDER, index_name)
+    return os.path.join(config.INDEX_FOLDER, index_name)
 
 
 def create_index(dataset_path):
