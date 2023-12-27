@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from config import DATETIME_FORMAT, DATASET_FOLDER
+import config
 
 
 def init_dataset_storage():
-    if not os.path.exists(DATASET_FOLDER):
-        os.mkdir(DATASET_FOLDER)
+    if not os.path.exists(config.DATASET_FOLDER):
+        os.mkdir(config.DATASET_FOLDER)
 
 
 def write_csv_dataset(dataset: DataFrame, dataset_path: str) -> None:
@@ -69,7 +69,7 @@ def _format_sent_datetime(df: DataFrame) -> None:
 
 def _is_datetime_has_target_format(dt: str) -> bool:
     try:
-        datetime.strptime(dt, DATETIME_FORMAT)
+        datetime.strptime(dt, config.DATETIME_FORMAT)
         return True
     except ValueError:
         return False
@@ -80,7 +80,7 @@ def _parse_iso_datetime(dt: str) -> datetime:
 
 
 def _format_datetime(dt: datetime) -> str:
-    return datetime.strftime(dt, DATETIME_FORMAT)
+    return datetime.strftime(dt, config.DATETIME_FORMAT)
 
 
 def _escape_html_in_text(df):

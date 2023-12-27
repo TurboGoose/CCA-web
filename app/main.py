@@ -5,13 +5,12 @@ from threading import Thread
 
 from flask import Flask, request, redirect, url_for, send_file, render_template, flash
 from pandas import DataFrame
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-
 
 import models
-from config import DATASET_FOLDER, DATA_FOLDER, DATABASE_FILE, MAX_CONTENT_LENGTH_MB
+from config import DATASET_FOLDER, DATA_FOLDER, MAX_CONTENT_LENGTH_MB
 from datasets import (
     init_dataset_storage,
     read_csv_dataset,
@@ -31,17 +30,7 @@ from searcher import search
 app = Flask(__name__)
 
 app.config.from_object("config")
-# app.config["SECRET_KEY"] = "super secret key"
-# app.config["SESSION_TYPE"] = "filesystem"
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
-# app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2Mb
 models.db.init_app(app)
-
-if not os.path.exists(DATA_FOLDER):
-    os.mkdir(DATA_FOLDER)
-
-init_dataset_storage()
-init_index_storage()
 
 
 @app.get("/")
@@ -243,6 +232,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "init":
             with app.app_context():
+                if not os.path.exists(DATA_FOLDER):
+                    os.mkdir(DATA_FOLDER)
+
                 models.init_db()
+                init_dataset_storage()
+                init_index_storage()
     else:
         app.run(port=8080, debug=True)

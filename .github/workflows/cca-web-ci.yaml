@@ -17,5 +17,5 @@ jobs:
         uses: py-actions/flake8@v2
         with:
           ignore: "BLK100"
-          path: "src"
+          path: "app"
           max-line-length: "100"

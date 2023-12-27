@@ -36,7 +36,12 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-6. Run server
+6. Init database (if running for the first time)
 ```shell
-python src/app.py
+python app/main.py init
+```
+
+7. Run server
+```shell
+python app/main.py
 ```

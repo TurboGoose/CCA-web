@@ -48,7 +48,9 @@ def get_datasets():
 
 def rename_dataset(old_dataset_name, new_dataset_name):
     db.session.execute(
-        db.update(Dataset).where(Dataset.name == old_dataset_name).values(name=new_dataset_name)
+        db.update(Dataset)
+        .where(Dataset.name == old_dataset_name)
+        .values(name=new_dataset_name)
     )
     db.session.commit()
 
@@ -67,7 +69,8 @@ def save_label_for_dataset(label_name, dataset_name):
 
 def get_labels_for_dataset(dataset_name):
     return [
-        label.name for label in db.session.query(Label).filter_by(dataset_name=dataset_name).all()
+        label.name
+        for label in db.session.query(Label).filter_by(dataset_name=dataset_name).all()
     ]
 
 
