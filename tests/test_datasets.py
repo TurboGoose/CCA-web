@@ -14,8 +14,6 @@ from app.datasets import (
     delete_csv_dataset,
 )
 
-DATASET_NAME = "dataset.csv"
-
 
 @pytest.fixture
 def temp_dataset_folder(monkeypatch, tmpdir):
@@ -23,20 +21,6 @@ def temp_dataset_folder(monkeypatch, tmpdir):
     monkeypatch.setattr(config, "DATASET_FOLDER", temporary_folder)
     os.mkdir(temporary_folder)
     yield temporary_folder
-
-
-@pytest.fixture
-def sample_dataframe():
-    return pd.DataFrame(
-        {"username": "dude", "sent": ["2023-09-01T12:00:00Z"], "text": ["Hello there!"]}
-    )
-
-
-@pytest.fixture
-def sample_dataset_path(temp_dataset_folder, sample_dataframe):
-    csv_path = os.path.join(temp_dataset_folder, DATASET_NAME)
-    sample_dataframe.to_csv(csv_path, index=False)
-    return csv_path
 
 
 def test_init_dataset_storage(temp_dataset_folder):

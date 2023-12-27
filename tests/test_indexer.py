@@ -1,13 +1,11 @@
 import os
 import shutil
 
-import pandas as pd
 import pytest
 
 from app import config
 from app.indexer import init_index_storage, create_index, delete_index, rename_index
-
-DATASET_NAME = "dataset.csv"
+from conftest import DATASET_NAME
 
 
 @pytest.fixture
@@ -16,20 +14,6 @@ def temp_index_folder(monkeypatch, tmpdir):
     monkeypatch.setattr(config, "INDEX_FOLDER", temporary_folder)
     os.mkdir(temporary_folder)
     yield temporary_folder
-
-
-@pytest.fixture
-def sample_dataframe():
-    return pd.DataFrame(
-        {"username": "dude", "sent": ["2023-09-01T12:00:00Z"], "text": ["Hello there!"]}
-    )
-
-
-@pytest.fixture
-def sample_dataset_path(sample_dataframe, tmpdir):
-    csv_path = os.path.join(tmpdir, DATASET_NAME)
-    sample_dataframe.to_csv(csv_path, index=False)
-    return csv_path
 
 
 def test_init_index_storage(temp_index_folder):
