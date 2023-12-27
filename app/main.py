@@ -32,30 +32,20 @@ app = Flask(__name__)
 app.config.from_object("config")
 models.db.init_app(app)
 
-if not os.path.exists(DATA_FOLDER):
-    os.mkdir(DATA_FOLDER)
-
-init_dataset_storage()
-init_index_storage()
-
 
 @app.get("/")
 def show_data():
     dataset_name = request.args.get("dataset")
 
     if not dataset_name:
-        return render_template(
-            "viewer.html", data=None, other_datasets=get_dataset_list()
-        )
+        return render_template("viewer.html", data=None, other_datasets=get_dataset_list())
 
     dataset_path = compose_dataset_path(dataset_name)
     if not os.path.exists(dataset_path):
         return redirect("/")
 
     query = request.args.get("query")
-    data = (
-        handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
-    )
+    data = handle_search(dataset_path, query) if query else read_csv_dataset(dataset_path)
 
     current_dataset = dataset_name
     other_datasets = get_dataset_list(current_dataset=current_dataset)
@@ -242,6 +232,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "init":
             with app.app_context():
+                if not os.path.exists(DATA_FOLDER):
+                    os.mkdir(DATA_FOLDER)
+
                 models.init_db()
+                init_dataset_storage()
+                init_index_storage()
     else:
         app.run(port=8080, debug=True)

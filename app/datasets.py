@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from . import config
+import config
 
 
 def init_dataset_storage():
@@ -23,9 +23,7 @@ def rename_csv_dataset(dataset_path: str, new_name: str) -> None:
     if not os.path.exists(dataset_path):
         raise ValueError(f"Cannot rename dataset: file '{dataset_path}' does not exist")
     if os.path.exists(new_dataset_path):
-        raise ValueError(
-            f"Cannot rename dataset: file '{new_dataset_path}' already exists"
-        )
+        raise ValueError(f"Cannot rename dataset: file '{new_dataset_path}' already exists")
     os.rename(dataset_path, new_dataset_path)
 
 
@@ -66,9 +64,7 @@ def _transform(df: DataFrame) -> None:
 
 def _format_sent_datetime(df: DataFrame) -> None:
     if not _is_datetime_has_target_format(df.loc[0]["sent"]):
-        df["sent"] = df["sent"].apply(
-            lambda dt: _format_datetime(_parse_iso_datetime(dt))
-        )
+        df["sent"] = df["sent"].apply(lambda dt: _format_datetime(_parse_iso_datetime(dt)))
 
 
 def _is_datetime_has_target_format(dt: str) -> bool:
