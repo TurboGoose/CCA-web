@@ -38,5 +38,5 @@ pip install -r requirements.txt
 
 6. Run server
 ```shell
-python src/app.py
+python app/app.py
 ```

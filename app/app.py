@@ -11,7 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 
 import models
-from config import DATASET_FOLDER, DATA_FOLDER, DATABASE_FILE, MAX_CONTENT_LENGTH_MB
+from config import DATASET_FOLDER, DATA_FOLDER, MAX_CONTENT_LENGTH_MB
 from datasets import (
     init_dataset_storage,
     read_csv_dataset,
@@ -31,10 +31,6 @@ from searcher import search
 app = Flask(__name__)
 
 app.config.from_object("config")
-# app.config["SECRET_KEY"] = "super secret key"
-# app.config["SESSION_TYPE"] = "filesystem"
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.abspath(DATABASE_FILE)
-# app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2Mb
 models.db.init_app(app)
 
 if not os.path.exists(DATA_FOLDER):
